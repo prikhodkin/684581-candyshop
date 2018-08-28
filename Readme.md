@@ -1,7 +1,7 @@
 # Личный проект «Кэндишоп» [![Build status][travis-image]][travis-url]
 
 * Студент: [Илья Приходкин](https://up.htmlacademy.ru/javascript/15/user/684581).
-* Наставник: `Неизвестно`.
+* Наставник: `Вадим Шевяков`.
 
 ---
 
