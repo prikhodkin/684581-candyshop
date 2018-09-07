@@ -108,7 +108,7 @@ var newNames = [];
 var newPictures = [];
 
 // Массив для 26 объектов
-var cards= [];
+var cards = [];
 
 // Объект для рейтинга
 var valueByStars = {
@@ -123,22 +123,22 @@ var valueByStars = {
 var getSugarValue = function () {
   var sugar = '';
   if (getRandomValue() === 0) {
-    sugar = 'Без сахара'
+    sugar = 'Без сахара';
     return sugar;
   } else {
-    sugar = 'Содержит сахар'
+    sugar = 'Содержит сахар';
     return sugar;
   }
 };
 
 // Функция для получения случайного значения из диапазона
 var getRandomValue = function (min, max) {
-  return Math.round(Math.random()* (max - min)) + min;
+  return Math.round(Math.random() * (max - min)) + min;
 };
 
 // Функция для получения случайного названия
 var getRandomName = function () {
-  var i = getRandomValue (0, names.length-1);
+  var i = getRandomValue(0, names.length - 1);
   var name = names[i];
   newNames.push(names[name]);
   names.splice(i, 1);
@@ -147,7 +147,7 @@ var getRandomName = function () {
 
 // Функция для получения случайного изображения
 var getRandomPicture = function () {
-  var i = getRandomValue (0, pictures.length-1);
+  var i = getRandomValue(0, pictures.length - 1);
   var picture = pictures[i];
   newPictures.push(pictures[picture]);
   pictures.splice(i, 1);
@@ -156,13 +156,13 @@ var getRandomPicture = function () {
 
 // Функция для получени нескольких значений и склеивания
 var getRandomContents = function () {
-  var contentRandomValue =  Math.round(Math.random()* contents.length-1)
+  var contentRandomValue = Math.round(Math.random() * contents.length - 1);
   var newContents = [];
   var contentsCopy = contents.slice();
   for (var i = 0; i <= contentRandomValue; i++) {
-    var randomElement = getRandomValue(0, contents.length-1);
+    var randomElement = getRandomValue(0, contents.length - 1);
     newContents.push(contentsCopy[randomElement]);
-    }
+  }
   return newContents.join(', ');
 };
 
@@ -176,14 +176,14 @@ var getCard = function () {
     weight: getRandomValue(MIN_WEIGHT, MAX_WEIGHT),
     rating: {
       value: getRandomValue(MIN_VALUE, MAX_VALUE),
-      number: getRandomValue (MIN_NUMBER, MAX_NUMBER)
+      number: getRandomValue(MIN_NUMBER, MAX_NUMBER)
     },
-    nutrition_facts: {
+    nutritionFacts: {
       sugar: getSugarValue(),
-      energy: getRandomValue (MIN_ENERGY, MAX_ENERGY),
+      energy: getRandomValue(MIN_ENERGY, MAX_ENERGY),
       contents: getRandomContents()
     }
-  }
+  };
 };
 
 // Функция для создания массива карточек
@@ -192,7 +192,7 @@ var fillArray = function () {
     cards.push(getCard());
   }
   return cards;
-}
+};
 
 
 // Создаем массив для карточек в корзине
@@ -200,9 +200,9 @@ var fillArrayBasket = function () {
   var cardsBasket = [];
   var cardsBasketCopy = cards.slice();
   for (var i = 1; i <= MAX_BASKET; i++) {
-    var randomCard = getRandomValue(0, cards.length-1);
+    var randomCard = getRandomValue(0, cards.length - 1);
     cardsBasket.push(cardsBasketCopy[randomCard]);
-  };
+  }
   return cardsBasket;
 };
 
@@ -226,12 +226,12 @@ var addClassByAmount = function (amount) {
     cardClass = 'card--soon';
   }
   return cardClass;
-}
+};
 
 // Отрисовывает карточки
 var createCards = function (cardData) {
   var fragment = document.createDocumentFragment();
-  cardData.forEach (function (item) {
+  cardData.forEach(function (item) {
     var cardElement = document.querySelector('#card').content.cloneNode(true);
     var cardPrice = cardElement.querySelector('.card__price');
     var cardCurrency = cardElement.querySelector('.card__currency');
@@ -247,8 +247,8 @@ var createCards = function (cardData) {
     cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
     cardElement.querySelector('.stars__rating').classList.add(valueByStars[item.rating.value]);
     cardElement.querySelector('.star__count').textContent = item.rating.number;
-    cardElement.querySelector('.card__characteristic').textContent = item.nutrition_facts.sugar;
-    cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + item.nutrition_facts.contents;
+    cardElement.querySelector('.card__characteristic').textContent = item.nutritionFacts.sugar;
+    cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + item.nutritionFacts.contents;
     fragment.appendChild(cardElement);
   });
   return fragment;
@@ -265,12 +265,12 @@ goodsCardEmpty.classList.add('visually-hidden');
 
 var createCardsBasket = function (cardData) {
   var fragment = document.createDocumentFragment();
-  cardData.forEach (function (item) {
-  var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
-  cardBasketElement.querySelector('.card-order__title').textContent = item.name;
-  cardBasketElement.querySelector('.card-order__img').src = item.picture;
-  cardBasketElement.querySelector('.card-order__price').textContent = item.price + ' ₽';
-  fragment.appendChild(cardBasketElement);
+  cardData.forEach(function (item) {
+    var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
+    cardBasketElement.querySelector('.card-order__title').textContent = item.name;
+    cardBasketElement.querySelector('.card-order__img').src = item.picture;
+    cardBasketElement.querySelector('.card-order__price').textContent = item.price + ' ₽';
+    fragment.appendChild(cardBasketElement);
   });
   return fragment;
 };
