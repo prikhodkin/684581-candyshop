@@ -13,6 +13,7 @@ var MAX_NUMBER = 900;
 var MIN_ENERGY = 70;
 var MAX_ENERGY = 500;
 var MAX_CARDS = 26;
+var MAX_BASKET = 3;
 
 // Массив для выбора названия
 var names = [
@@ -109,6 +110,27 @@ var newPictures = [];
 // Массив для 26 объектов
 var cards= [];
 
+// Объект для рейтинга
+var valueByStars = {
+  1: 'stars__rating--one',
+  2: 'stars__rating--two',
+  3: 'stars__rating--three',
+  4: 'stars__rating--four',
+  5: 'stars__rating--five'
+};
+
+// Функция для вывода содержания сахара
+var getSugarValue = function () {
+  var sugar = '';
+  if (getRandomValue() === 0) {
+    sugar = 'Без сахара'
+    return sugar;
+  } else {
+    sugar = 'Содержит сахар'
+    return sugar;
+  }
+};
+
 // Функция для получения случайного значения из диапазона
 var getRandomValue = function (min, max) {
   return Math.round(Math.random()* (max - min)) + min;
@@ -141,7 +163,7 @@ var getRandomContents = function () {
     var randomElement = getRandomValue(0, contents.length-1);
     newContents.push(contentsCopy[randomElement]);
     }
-  return newContents;
+  return newContents.join(', ');
 };
 
 // Функция для создания карточки
@@ -157,7 +179,7 @@ var getCard = function () {
       number: getRandomValue (MIN_NUMBER, MAX_NUMBER)
     },
     nutrition_facts: {
-      sugar: Boolean(Math.round(Math.random())),
+      sugar: getSugarValue(),
       energy: getRandomValue (MIN_ENERGY, MAX_ENERGY),
       contents: getRandomContents()
     }
@@ -171,7 +193,86 @@ var fillArray = function () {
   }
   return cards;
 }
-console.log(fillArray());
 
 
+// Создаем массив для карточек в корзине
+var fillArrayBasket = function () {
+  var cardsBasket = [];
+  var cardsBasketCopy = cards.slice();
+  for (var i = 1; i <= MAX_BASKET; i++) {
+    var randomCard = getRandomValue(0, cards.length-1);
+    cardsBasket.push(cardsBasketCopy[randomCard]);
+  };
+  return cardsBasket;
+};
 
+// ============================================
+var newCards = fillArray();
+var newCardsBasket = fillArrayBasket();
+
+var catalogCards = document.querySelector('.catalog__cards');
+catalogCards.classList.remove('catalog__cards--load');
+var catalogLoad = catalogCards.querySelector('.catalog__load');
+catalogLoad.classList.add('visually-hidden');
+
+// Определяем классы в завсисимости от значения
+var addClassByAmount = function (amount) {
+  var cardClass;
+  if (amount > 5) {
+    cardClass = 'card--in-stock';
+  } else if (amount > 1 && amount <= 5) {
+    cardClass = 'card--little';
+  } else if (amount === 0) {
+    cardClass = 'card--soon';
+  }
+  return cardClass;
+}
+
+// Отрисовывает карточки
+var createCards = function (cardData) {
+  var fragment = document.createDocumentFragment();
+  cardData.forEach (function (item) {
+    var cardElement = document.querySelector('#card').content.cloneNode(true);
+    var cardPrice = cardElement.querySelector('.card__price');
+    var cardCurrency = cardElement.querySelector('.card__currency');
+    var cardWeight = cardElement.querySelector('.card__weight');
+    cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
+    cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(item.amount));
+    cardElement.querySelector('.card__img').src = item.picture;
+    cardElement.querySelector('.card__title').textContent = item.name;
+    cardPrice.textContent = item.price;
+    cardPrice.appendChild(cardCurrency);
+    cardPrice.appendChild(cardWeight);
+    cardElement.querySelector('.card__weight').textContent = '/ ' + item.weight + ' Г';
+    cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
+    cardElement.querySelector('.stars__rating').classList.add(valueByStars[item.rating.value]);
+    cardElement.querySelector('.star__count').textContent = item.rating.number;
+    cardElement.querySelector('.card__characteristic').textContent = item.nutrition_facts.sugar;
+    cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + item.nutrition_facts.contents;
+    fragment.appendChild(cardElement);
+  });
+  return fragment;
+};
+
+catalogCards.appendChild(createCards(newCards));
+
+// Отрисовываем товары в корзине
+
+var goodsCards = document.querySelector('.goods__cards');
+goodsCards.classList.remove('goods__cards--empty');
+var goodsCardEmpty = goodsCards.querySelector('.goods__card-empty');
+goodsCardEmpty.classList.add('visually-hidden');
+
+var createCardsBasket = function (cardData) {
+  var fragment = document.createDocumentFragment();
+  cardData.forEach (function (item) {
+  var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
+  cardBasketElement.querySelector('.card-order__title').textContent = item.name;
+  cardBasketElement.querySelector('.card-order__img').src = item.picture;
+  cardBasketElement.querySelector('.card-order__price').textContent = item.price + ' ₽';
+  fragment.appendChild(cardBasketElement);
+  });
+  return fragment;
+};
+
+goodsCards.appendChild(createCardsBasket(newCardsBasket));
