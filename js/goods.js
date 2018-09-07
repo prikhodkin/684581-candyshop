@@ -101,12 +101,6 @@ var contents = [
   'виллабаджо'
 ];
 
-// Массив для рандомного названия
-var newNames = [];
-
-// Массив для рандомного изображения
-var newPictures = [];
-
 // Массив для 26 объектов
 var cards = [];
 
@@ -136,23 +130,19 @@ var getRandomValue = function (min, max) {
   return Math.round(Math.random() * (max - min)) + min;
 };
 
-// Функция для получения случайного названия
-var getRandomName = function () {
-  var i = getRandomValue(0, names.length - 1);
-  var name = names[i];
-  newNames.push(names[name]);
-  names.splice(i, 1);
-  return name;
+// Получаем случайные значения их массивов
+var takeRandomElement = function (arr) {
+  var i = getRandomValue(0, arr.length - 1);
+  var randomElement = arr[i];
+  arr.splice(i, 1);
+  return randomElement;
 };
 
 // Функция для получения случайного изображения
 var getRandomPicture = function () {
-  var i = getRandomValue(0, pictures.length - 1);
-  var picture = pictures[i];
-  newPictures.push(pictures[picture]);
-  pictures.splice(i, 1);
-  return 'img/cards/' + picture + '.jpg';
+  return 'img/cards/' + takeRandomElement(pictures) + '.jpg';
 };
+
 
 // Функция для получени нескольких значений и склеивания
 var getRandomContents = function () {
@@ -169,7 +159,7 @@ var getRandomContents = function () {
 // Функция для создания карточки
 var getCard = function () {
   return {
-    name: getRandomName(),
+    name: takeRandomElement(names),
     picture: getRandomPicture(),
     amount: getRandomValue(MIN_AMOUT, MAX_AMOUT),
     price: getRandomValue(MIN_PRICE, MAX_PRICE),
@@ -207,9 +197,6 @@ var fillArrayBasket = function () {
 };
 
 // ============================================
-var newCards = fillArray();
-var newCardsBasket = fillArrayBasket();
-
 var catalogCards = document.querySelector('.catalog__cards');
 catalogCards.classList.remove('catalog__cards--load');
 var catalogLoad = catalogCards.querySelector('.catalog__load');
@@ -254,7 +241,7 @@ var createCards = function (cardData) {
   return fragment;
 };
 
-catalogCards.appendChild(createCards(newCards));
+catalogCards.appendChild(createCards(fillArray()));
 
 // Отрисовываем товары в корзине
 
@@ -275,4 +262,4 @@ var createCardsBasket = function (cardData) {
   return fragment;
 };
 
-goodsCards.appendChild(createCardsBasket(newCardsBasket));
+goodsCards.appendChild(createCardsBasket(fillArrayBasket()));
