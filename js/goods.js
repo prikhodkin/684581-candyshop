@@ -1,3 +1,19 @@
+'use strict';
+
+var MIN_AMOUT = 0;
+var MAX_AMOUT = 20;
+var MIN_PRICE = 100;
+var MAX_PRICE = 1500;
+var MIN_WEIGHT = 30;
+var MAX_WEIGHT = 300;
+var MIN_VALUE = 1;
+var MAX_VALUE = 5;
+var MIN_NUMBER = 10;
+var MAX_NUMBER = 900;
+var MIN_ENERGY = 70;
+var MAX_ENERGY = 500;
+var MAX_CARDS = 26;
+
 // Массив для выбора названия
 var names = [
   'Чесночные сливки',
@@ -135,16 +151,16 @@ var getCard = function () {
   return {
     name: getRandomName(),
     picture: getRandomPicture(),
-    amount: getRandomValue(0, 20),
-    price: getRandomValue(100, 1500),
-    weight: getRandomValue(30, 300),
+    amount: getRandomValue(MIN_AMOUT, MAX_AMOUT),
+    price: getRandomValue(MIN_PRICE, MAX_PRICE),
+    weight: getRandomValue(MIN_WEIGHT, MAX_WEIGHT),
     rating: {
-      value: getRandomValue(1, 5),
-      number: getRandomValue (10, 900)
+      value: getRandomValue(MIN_VALUE, MAX_VALUE),
+      number: getRandomValue (MIN_NUMBER, MAX_NUMBER)
     },
     nutrition_facts: {
       sugar: Boolean(Math.round(Math.random())),
-      energy: getRandomValue (70, 500),
+      energy: getRandomValue (MIN_ENERGY, MAX_ENERGY),
       contents: getRandomContents()
     }
   }
@@ -152,7 +168,7 @@ var getCard = function () {
 
 // Функция для создания массива карточек
 var fillArray = function () {
-  for (var i = 1; i <= 26; i++) {
+  for (var i = 1; i <= MAX_CARDS; i++) {
     cardArray.push(getCard());
   }
   return cardArray;
