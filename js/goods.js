@@ -79,7 +79,7 @@ var pictures = [
 ];
 
 // Массив состава
-var contentsArray = [
+var contents = [
   'молоко',
   'сливки',
   'вода',
@@ -100,9 +100,6 @@ var contentsArray = [
   'виллабаджо'
 ];
 
-// Массив для рандомного состава
-var newContents = [];
-
 // Массив для рандомного названия
 var newNames = [];
 
@@ -110,7 +107,7 @@ var newNames = [];
 var newPictures = [];
 
 // Массив для 26 объектов
-var cardArray = [];
+var cards= [];
 
 // Функция для получения случайного значения из диапазона
 var getRandomValue = function (min, max) {
@@ -137,11 +134,12 @@ var getRandomPicture = function () {
 
 // Функция для получени нескольких значений и склеивания
 var getRandomContents = function () {
-  var contentRandomValue =  Math.round(Math.random()* contentsArray.length-1)
+  var contentRandomValue =  Math.round(Math.random()* contents.length-1)
+  var newContents = [];
+  var contentsCopy = contents.slice();
   for (var i = 0; i <= contentRandomValue; i++) {
-    var randomElement = getRandomValue(0, contentsArray.length-1);
-    newContents.push(contentsArray[randomElement]);
-    contentsArray.splice(randomElement, 1);
+    var randomElement = getRandomValue(0, contents.length-1);
+    newContents.push(contentsCopy[randomElement]);
     }
   return newContents;
 };
@@ -169,9 +167,9 @@ var getCard = function () {
 // Функция для создания массива карточек
 var fillArray = function () {
   for (var i = 1; i <= MAX_CARDS; i++) {
-    cardArray.push(getCard());
+    cards.push(getCard());
   }
-  return cardArray;
+  return cards;
 }
 console.log(fillArray());
 
