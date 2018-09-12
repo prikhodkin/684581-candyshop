@@ -185,13 +185,24 @@ var fillArray = function () {
 };
 
 
+// // Создаем массив для карточек в корзине
+// var fillArrayBasket = function () {
+//   var cardsBasket = [];
+//   var cardsBasketCopy = cards.slice();
+//   for (var i = 1; i <= MAX_BASKET; i++) {
+//     var randomCard = getRandomValue(0, cards.length - 1);
+//     cardsBasket.push(cardsBasketCopy[randomCard]);
+//   }
+//   return cardsBasket;
+// };
+
 // Создаем массив для карточек в корзине
 var fillArrayBasket = function () {
   var cardsBasket = [];
   var cardsBasketCopy = cards.slice();
-  for (var i = 1; i <= MAX_BASKET; i++) {
-    var randomCard = getRandomValue(0, cards.length - 1);
-    cardsBasket.push(cardsBasketCopy[randomCard]);
+  for (var i = 0; i < 1; i++) {
+
+    cardsBasket.push(cardsBasketCopy[i]);
   }
   return cardsBasket;
 };
@@ -246,9 +257,9 @@ catalogCards.appendChild(createCards(fillArray()));
 // Отрисовываем товары в корзине
 
 var goodsCards = document.querySelector('.goods__cards');
-goodsCards.classList.remove('goods__cards--empty');
+// goodsCards.classList.remove('goods__cards--empty');
 var goodsCardEmpty = goodsCards.querySelector('.goods__card-empty');
-goodsCardEmpty.classList.add('visually-hidden');
+// goodsCardEmpty.classList.add('visually-hidden');
 
 var createCardsBasket = function (cardData) {
   var fragment = document.createDocumentFragment();
@@ -262,4 +273,23 @@ var createCardsBasket = function (cardData) {
   return fragment;
 };
 
-goodsCards.appendChild(createCardsBasket(fillArrayBasket()));
+// goodsCards.appendChild(createCardsBasket(fillArrayBasket()));
+
+
+catalogCards.addEventListener('click', function (evt) {
+  var target = evt.target.closest('.card__btn-favorite');
+  if (target === null) {
+    return;
+  }
+  target.classList.toggle('card__btn-favorite--selected');
+});
+
+catalogCards.addEventListener('click', function (evt) {
+  var target = evt.target.closest('.card__btn');
+  if (target === null) {
+    return;
+  }
+  goodsCards.appendChild(createCardsBasket(fillArrayBasket()));
+  goodsCards.classList.remove('goods__cards--empty');
+  goodsCardEmpty.classList.add('visually-hidden');
+});
