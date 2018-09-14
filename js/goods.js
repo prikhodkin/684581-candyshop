@@ -277,11 +277,12 @@ var alertMessage = function () {
 };
 
 var addButtons = document.querySelectorAll('.card__btn');
-
+var cardsOnCatalog = catalogCards.querySelectorAll('.catalog__card');
 
 // Создает карточку товара в корзине
 var addToBasket = function (i) {
   return function (evt) {
+    govnishe(cardsOnCatalog[i], i);
     evt.preventDefault();
     var fragment = document.createDocumentFragment();
     var cardsBasket = cards[i];
@@ -290,6 +291,7 @@ var addToBasket = function (i) {
     cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
     cardBasketElement.querySelector('.card-order__img').src = cardsBasket.picture;
     cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + ' ₽';
+    cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
     fragment.appendChild(cardBasketElement);
     goodsCards.appendChild(fragment);
     alertMessage();
@@ -319,17 +321,17 @@ goodsCards.addEventListener('click', function (evt) {
   addDisabledForInput();
 });
 
+
 // Увеличивает кол-во товаров в корзине
 goodsCards.addEventListener('click', function (evt) {
   evt.preventDefault();
   var target = evt.target.closest('.card-order__btn--increase');
+  var card = evt.target.closest('.card-order__amount');
+  var value = card.querySelector('.card-order__count');
   if (target === null) {
     return;
   }
-  var card = evt.target.closest('.card-order__amount');
-  var value = card.querySelector('.card-order__count');
-  value.value++;
-
+  increaseValue(value);
 });
 
 // Уменьшает кол-во товаров в корзине
@@ -349,3 +351,34 @@ goodsCards.addEventListener('click', function (evt) {
     addDisabledForInput();
   }
 });
+
+// Увеличивает значение
+var increaseValue = function (value) {
+  value.value++;
+};
+
+var addDataAtribute = function () {
+  for (var i = 0; i < cardsOnCatalog.length; i++) {
+    cardsOnCatalog[i].setAttribute('data-id', i + 1);
+  }
+};
+addDataAtribute();
+
+
+var govnishe = function (target, i) {
+  var her = goodsCards.querySelector('[data-id= ' + target.dataset.id + ' ]');
+  if (her === null) {
+    var fragment = document.createDocumentFragment();
+    var cardsBasket = cards[i];
+
+    var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
+    cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
+    cardBasketElement.querySelector('.card-order__img').src = cardsBasket.picture;
+    cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + ' ₽';
+    cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
+    fragment.appendChild(cardBasketElement);
+    goodsCards.appendChild(fragment);
+    alertMessage();
+    addDisabledForInput();
+  }
+};
