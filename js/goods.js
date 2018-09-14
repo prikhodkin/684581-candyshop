@@ -280,20 +280,10 @@ var addButtons = document.querySelectorAll('.card__btn');
 var cardsOnCatalog = catalogCards.querySelectorAll('.catalog__card');
 
 // Создает карточку товара в корзине
-var addToBasket = function (i) {
+var runAddToBasket = function (i) {
   return function (evt) {
-    govnishe(cardsOnCatalog[i], i);
+    addToBasket(cardsOnCatalog[i], i);
     evt.preventDefault();
-    var fragment = document.createDocumentFragment();
-    var cardsBasket = cards[i];
-
-    var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
-    cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
-    cardBasketElement.querySelector('.card-order__img').src = cardsBasket.picture;
-    cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + ' ₽';
-    cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
-    fragment.appendChild(cardBasketElement);
-    goodsCards.appendChild(fragment);
     alertMessage();
     addDisabledForInput();
   };
@@ -302,7 +292,7 @@ var addToBasket = function (i) {
 // Добавляет товары в корзину при клике на кнопку добавить
 var addCardForBasket = function () {
   for (var i = 0; i < addButtons.length; i++) {
-    addButtons[i].addEventListener('click', addToBasket(i));
+    addButtons[i].addEventListener('click', runAddToBasket(i));
   }
 };
 
@@ -357,6 +347,7 @@ var increaseValue = function (value) {
   value.value++;
 };
 
+// Добавляет дата атрибуты
 var addDataAtribute = function () {
   for (var i = 0; i < cardsOnCatalog.length; i++) {
     cardsOnCatalog[i].setAttribute('data-id', i + 1);
@@ -364,13 +355,12 @@ var addDataAtribute = function () {
 };
 addDataAtribute();
 
-
-var govnishe = function (target, i) {
-  var her = goodsCards.querySelector('[data-id= ' + target.dataset.id + ' ]');
-  if (her === null) {
+// Добавляет карточки в корзину, если есть повтор, увеличивает значение
+var addToBasket = function (target, i) {
+  var dataAttribute = goodsCards.querySelector('[data-id="' + target.dataset.id + '"]');
+  if (dataAttribute === null) {
     var fragment = document.createDocumentFragment();
     var cardsBasket = cards[i];
-
     var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
     cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
     cardBasketElement.querySelector('.card-order__img').src = cardsBasket.picture;
@@ -378,7 +368,96 @@ var govnishe = function (target, i) {
     cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
     fragment.appendChild(cardBasketElement);
     goodsCards.appendChild(fragment);
-    alertMessage();
-    addDisabledForInput();
+  } else {
+    var value = dataAttribute.querySelector('.card-order__count');
+    increaseValue(value);
   }
 };
+
+
+var payment = document.querySelector('.payment');
+var paymentCard = payment.querySelector('.payment__card-wrap');
+var paymentCash = payment.querySelector('.payment__cash-wrap');
+var btnCard = payment.querySelector('input#payment__card');
+var btnCash = payment.querySelector('input#payment__cash');
+var paymentInputs = payment.querySelector('.payment__inputs');
+
+
+btnCash.addEventListener('click', function () {
+  addClassForPayment();
+});
+
+btnCard.addEventListener('click', function () {
+  addClassForPayment();
+});
+
+// Показывает и скрывает форму оплаты
+var addClassForPayment = function () {
+  if (btnCash.checked) {
+    paymentCash.classList.remove('visually-hidden');
+    paymentCard.classList.add('visually-hidden');
+    addDisabledForInputPayment();
+  } else {
+    paymentCash.classList.add('visually-hidden');
+    paymentCard.classList.remove('visually-hidden');
+    addDisabledForInputPayment();
+  }
+};
+
+
+var inputsPayment = paymentInputs.querySelectorAll('input');
+
+// Добавляет и убирает атрибут disabled на инпуты
+var addDisabledForInputPayment = function () {
+  var article = btnCash.checked;
+  for (var i = 0; i < inputsPayment.length; i++) {
+    if (article === false) {
+      inputsPayment[i].disabled = false;
+    } else {
+      inputsPayment[i].disabled = true;
+    }
+  }
+};
+
+var delivery = document.querySelector('.deliver');
+var store = delivery.querySelector('.deliver__store');
+var courier = delivery.querySelector('.deliver__courier');
+var btnStore = delivery.querySelector('input#deliver__store');
+var btnCourier = delivery.querySelector('input#deliver__courier');
+var fieldsetStore = store.querySelector('.deliver__stores');
+var fieldsetCourier = courier.querySelector('.deliver__entry-fields-wrap');
+
+btnStore.addEventListener('click', function () {
+  addClassForDelivery();
+});
+
+btnCourier.addEventListener('click', function () {
+  addClassForDelivery();
+});
+
+var addClassForDelivery = function () {
+  if (btnCourier.checked) {
+    courier.classList.remove('visually-hidden');
+    store.classList.add('visually-hidden');
+    addDisabledForFieldsetDelivery();
+  } else {
+    courier.classList.add('visually-hidden');
+    store.classList.remove('visually-hidden');
+    addDisabledForFieldsetDelivery();
+  }
+};
+
+// Добавляет и убирает атрибут disabled на инпуты
+var addDisabledForFieldsetDelivery = function () {
+  var article = btnCourier.checked;
+  if (article === false) {
+    fieldsetCourier.disabled = true;
+    fieldsetStore.disabled = false;
+  } else {
+    fieldsetCourier.disabled = false;
+    fieldsetStore.disabled = true;
+  }
+};
+
+addDisabledForFieldsetDelivery();
+
