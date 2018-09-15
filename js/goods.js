@@ -116,7 +116,7 @@ var valueByStars = {
 // Функция для вывода содержания сахара
 var getSugarValue = function () {
   var sugar = '';
-  if (getRandomValue() === 0) {
+  if (getRandomValue(0, 1) === 0) {
     sugar = 'Без сахара';
     return sugar;
   } else {
@@ -240,7 +240,7 @@ var goodsCardEmpty = goodsCards.querySelector('.goods__card-empty');
 catalogCards.addEventListener('click', function (evt) {
   evt.preventDefault();
   var target = evt.target.closest('.card__btn-favorite');
-  if (target === null) {
+  if (!target) {
     return;
   }
   target.classList.toggle('card__btn-favorite--selected');
@@ -252,7 +252,7 @@ catalogCards.addEventListener('click', function (evt) {
   var cardMain = evt.target.closest('.card__main');
   var target = evt.target.closest('.card__btn-composition');
   var composition = cardMain.querySelector('.card__composition');
-  if (target === null) {
+  if (!target) {
     return;
   }
   composition.classList.toggle('card__composition--hidden');
@@ -265,11 +265,7 @@ var inputs = order.querySelectorAll('input');
 var addDisabledForInput = function () {
   var article = document.querySelector('.goods_card');
   for (var i = 0; i < inputs.length; i++) {
-    if (article === null) {
-      inputs[i].disabled = true;
-    } else {
-      inputs[i].disabled = false;
-    }
+    inputs[i].disabled = (article === null);
   }
 };
 
@@ -278,21 +274,15 @@ addDisabledForInput();
 // Выводит и убирает сообщение о наличии товара в корзине
 var alertMessage = function () {
   var article = document.querySelector('.goods_card');
-  if (article === null) {
-    goodsCards.classList.add('goods__cards--empty');
-    goodsCardEmpty.classList.remove('visually-hidden');
-  } else {
-    goodsCards.classList.remove('goods__cards--empty');
-    goodsCardEmpty.classList.add('visually-hidden');
-  }
-
+  goodsCards.classList.toggle('goods__cards--empty', article === null);
+  goodsCardEmpty.classList.toggle('visually-hidden', article !== null);
 };
 
 var addButtons = document.querySelectorAll('.card__btn');
 var cardsOnCatalog = catalogCards.querySelectorAll('.catalog__card');
 
 // Создает карточку товара в корзине
-var runAddToBasket = function (i) {
+var createAddToBasketHandler = function (i) {
   return function (evt) {
     addToBasket(cardsOnCatalog[i], i);
     evt.preventDefault();
@@ -302,13 +292,13 @@ var runAddToBasket = function (i) {
 };
 
 // Добавляет товары в корзину при клике на кнопку добавить
-var addCardForBasket = function () {
+var addBasketAdditionHandlers = function () {
   for (var i = 0; i < addButtons.length; i++) {
-    addButtons[i].addEventListener('click', runAddToBasket(i));
+    addButtons[i].addEventListener('click', createAddToBasketHandler(i));
   }
 };
 
-addCardForBasket();
+addBasketAdditionHandlers();
 
 // Удаляет товары из корзины
 goodsCards.addEventListener('click', function (evt) {
@@ -371,15 +361,13 @@ addDataAtribute();
 var addToBasket = function (target, i) {
   var dataAttribute = goodsCards.querySelector('[data-id="' + target.dataset.id + '"]');
   if (dataAttribute === null) {
-    var fragment = document.createDocumentFragment();
     var cardsBasket = cards[i];
     var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
     cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
     cardBasketElement.querySelector('.card-order__img').src = cardsBasket.picture;
     cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + ' ₽';
     cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
-    fragment.appendChild(cardBasketElement);
-    goodsCards.appendChild(fragment);
+    goodsCards.appendChild(cardBasketElement);
   } else {
     var value = dataAttribute.querySelector('.card-order__count');
     increaseValue(value);
@@ -405,15 +393,9 @@ btnCard.addEventListener('click', function () {
 });
 
 var addClassForPayment = function () {
-  if (btnCash.checked) {
-    paymentCash.classList.remove('visually-hidden');
-    paymentCard.classList.add('visually-hidden');
-    addDisabledForInputPayment();
-  } else {
-    paymentCash.classList.add('visually-hidden');
-    paymentCard.classList.remove('visually-hidden');
-    addDisabledForInputPayment();
-  }
+  paymentCash.classList.toggle('visually-hidden', btnCard.checked === true);
+  paymentCard.classList.toggle('visually-hidden', btnCash.checked === true);
+  addDisabledForInputPayment();
 };
 
 
@@ -421,13 +403,8 @@ var inputsPayment = paymentInputs.querySelectorAll('input');
 
 // Добавляет и убирает атрибут disabled на инпуты
 var addDisabledForInputPayment = function () {
-  var article = btnCash.checked;
   for (var i = 0; i < inputsPayment.length; i++) {
-    if (article === false) {
-      inputsPayment[i].disabled = false;
-    } else {
-      inputsPayment[i].disabled = true;
-    }
+    inputsPayment[i].disabled = btnCash.checked === true;
   }
 };
 
@@ -451,27 +428,15 @@ btnCourier.addEventListener('click', function () {
 });
 
 var addClassForDelivery = function () {
-  if (btnCourier.checked) {
-    courier.classList.remove('visually-hidden');
-    store.classList.add('visually-hidden');
-    addDisabledForFieldsetDelivery();
-  } else {
-    courier.classList.add('visually-hidden');
-    store.classList.remove('visually-hidden');
-    addDisabledForFieldsetDelivery();
-  }
+  courier.classList.toggle('visually-hidden', btnStore.checked === true);
+  store.classList.toggle('visually-hidden', btnCourier.checked === true);
+  addDisabledForFieldsetDelivery();
 };
 
 // Добавляет и убирает атрибут disabled на инпуты в блоке доставки
 var addDisabledForFieldsetDelivery = function () {
-  var article = btnCourier.checked;
-  if (article === false) {
-    fieldsetCourier.disabled = true;
-    fieldsetStore.disabled = false;
-  } else {
-    fieldsetCourier.disabled = false;
-    fieldsetStore.disabled = true;
-  }
+  fieldsetCourier.disabled = btnCourier.checked === false;
+  fieldsetStore.disabled = btnCourier.checked === true;
 };
 
 addDisabledForFieldsetDelivery();
