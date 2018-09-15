@@ -246,6 +246,18 @@ catalogCards.addEventListener('click', function (evt) {
   target.classList.toggle('card__btn-favorite--selected');
 });
 
+// Показывает и скрывает состав
+catalogCards.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  var cardMain = evt.target.closest('.card__main');
+  var target = evt.target.closest('.card__btn-composition');
+  var composition = cardMain.querySelector('.card__composition');
+  if (target === null) {
+    return;
+  }
+  composition.classList.toggle('card__composition--hidden');
+});
+
 var order = document.querySelector('.order');
 var inputs = order.querySelectorAll('input');
 
@@ -374,6 +386,7 @@ var addToBasket = function (target, i) {
   }
 };
 
+// Показывает и скрывает форму оплаты
 
 var payment = document.querySelector('.payment');
 var paymentCard = payment.querySelector('.payment__card-wrap');
@@ -391,7 +404,6 @@ btnCard.addEventListener('click', function () {
   addClassForPayment();
 });
 
-// Показывает и скрывает форму оплаты
 var addClassForPayment = function () {
   if (btnCash.checked) {
     paymentCash.classList.remove('visually-hidden');
@@ -419,6 +431,8 @@ var addDisabledForInputPayment = function () {
   }
 };
 
+// Переключает вкладки в блоке доставки
+
 var delivery = document.querySelector('.deliver');
 var store = delivery.querySelector('.deliver__store');
 var courier = delivery.querySelector('.deliver__courier');
@@ -426,6 +440,7 @@ var btnStore = delivery.querySelector('input#deliver__store');
 var btnCourier = delivery.querySelector('input#deliver__courier');
 var fieldsetStore = store.querySelector('.deliver__stores');
 var fieldsetCourier = courier.querySelector('.deliver__entry-fields-wrap');
+
 
 btnStore.addEventListener('click', function () {
   addClassForDelivery();
@@ -447,7 +462,7 @@ var addClassForDelivery = function () {
   }
 };
 
-// Добавляет и убирает атрибут disabled на инпуты
+// Добавляет и убирает атрибут disabled на инпуты в блоке доставки
 var addDisabledForFieldsetDelivery = function () {
   var article = btnCourier.checked;
   if (article === false) {
