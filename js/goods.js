@@ -441,3 +441,100 @@ var addDisabledForFieldsetDelivery = function () {
 
 addDisabledForFieldsetDelivery();
 
+
+var buy = document.querySelector('.buy');
+var formBuy = buy.querySelector('form');
+var btnFormBuy = formBuy.querySelector('.buy__submit-btn');
+var modalSuccess = document.querySelector('.modal--success');
+var modalError = document.querySelector('.modal--error');
+
+// Показывает модальное окно
+var showModal = function (target) {
+  target.classList.remove('modal--hidden');
+};
+
+var btnModalSuccess = modalSuccess.querySelector('.modal__close');
+
+// Закрывает моадльное окно
+btnModalSuccess.addEventListener('click', function () {
+  modalSuccess.classList.add('modal--hidden');
+});
+// Закрывает моадльное окно кнопкой ESC
+document.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === 27) {
+    modalError.classList.add('modal--hidden');
+    modalSuccess.classList.add('modal--hidden');
+  }
+});
+
+var btnModalError = modalError.querySelector('.modal__close');
+// Закрывает моадльное окно
+btnModalError.addEventListener('click', function () {
+  modalError.classList.add('modal--hidden');
+});
+
+var contactDataInner = document.querySelector('.contact-data__inner');
+var jcontactDataInnerInputs = contactDataInner.querySelectorAll('input');
+
+// Показывает модальное окно в зависимоти от условий
+btnFormBuy.addEventListener('click', function (evt) {
+  for (var i = 0; i < jcontactDataInnerInputs.length; i++) {
+    if (jcontactDataInnerInputs[i].checkValidity() === false) {
+      showModal(modalError);
+      return;
+    } else if (validСreditСard(inputCardNumber.value) === false || inputCardDate.checkValidity() === false
+    || inputCardCVC.checkValidity() === false || inputCardholder.checkValidity() === false) {
+      showModal(modalError);
+      return;
+    } else if (fieldsetCourier.checkValidity() === false) {
+      showModal(modalError);
+      return;
+    } else if (inputs[i].disabled === true) {
+      evt.preventDefault();
+    } else {
+      showModal(modalSuccess);
+      evt.preventDefault();
+    }
+  }
+});
+
+var paymentInputsBlock = document.querySelector('.payment__inputs');
+var inputCardNumber = paymentInputsBlock.querySelector('#payment__card-number');
+var inputCardDate = paymentInputsBlock.querySelector('#payment__card-date');
+var inputCardCVC = paymentInputsBlock.querySelector('#payment__card-cvc');
+var inputCardholder = paymentInputsBlock.querySelector('#payment__cardholder');
+var paymentCardStatus = paymentInputsBlock.querySelector('.payment__card-status');
+
+// Смена статуса карты
+paymentInputsBlock.addEventListener('change', function () {
+  if (validСreditСard(inputCardNumber.value) === false || inputCardDate.checkValidity() === false
+  || inputCardCVC.checkValidity() === false || inputCardholder.checkValidity() === false) {
+    paymentCardStatus.textContent = 'НЕ ОПРЕДЕЛЁН';
+  } else {
+    paymentCardStatus.textContent = 'Одобрен';
+  }
+});
+
+// Алгоритм Луна
+var validСreditСard = function (value) {
+  if (/[^0-9-\s]+/.test(value)) {
+    return false;
+  }
+  var nCheck = 0;
+  var nDigit = 0;
+  var bEven = false;
+  value = value.replace(/\D/g, '');
+
+  for (var n = value.length - 1; n >= 0; n--) {
+    var cDigit = value.charAt(n);
+    nDigit = parseInt(cDigit, 10);
+    if (bEven) {
+      if ((nDigit *= 2) > 9) {
+        nDigit -= 9;
+      }
+    }
+    nCheck += nDigit;
+    bEven = !bEven;
+  }
+  return (nCheck % 10) === 0;
+};
