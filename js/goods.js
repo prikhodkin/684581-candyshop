@@ -13,6 +13,7 @@ var MAX_NUMBER = 900;
 var MIN_ENERGY = 70;
 var MAX_ENERGY = 500;
 var MAX_CARDS = 26;
+var ESC_CODE = 27;
 
 
 // Массив для выбора названия
@@ -260,6 +261,9 @@ catalogCards.addEventListener('click', function (evt) {
 
 var order = document.querySelector('.order');
 var inputs = order.querySelectorAll('input');
+var buy = document.querySelector('.buy');
+var formBuy = buy.querySelector('form');
+var btnFormBuy = formBuy.querySelector('.buy__submit-btn');
 
 // Добавляет и убирает атрибут disabled на инпуты
 var addDisabledForInput = function () {
@@ -267,6 +271,7 @@ var addDisabledForInput = function () {
   for (var i = 0; i < inputs.length; i++) {
     inputs[i].disabled = (article === null);
   }
+  btnFormBuy.disabled = (article === null);
 };
 
 addDisabledForInput();
@@ -441,10 +446,6 @@ var addDisabledForFieldsetDelivery = function () {
 
 addDisabledForFieldsetDelivery();
 
-
-var buy = document.querySelector('.buy');
-var formBuy = buy.querySelector('form');
-var btnFormBuy = formBuy.querySelector('.buy__submit-btn');
 var modalSuccess = document.querySelector('.modal--success');
 var modalError = document.querySelector('.modal--error');
 
@@ -461,7 +462,7 @@ btnModalSuccess.addEventListener('click', function () {
 });
 // Закрывает моадльное окно кнопкой ESC
 document.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === 27) {
+  if (evt.keyCode === ESC_CODE) {
     modalError.classList.add('modal--hidden');
     modalSuccess.classList.add('modal--hidden');
   }
@@ -473,31 +474,48 @@ btnModalError.addEventListener('click', function () {
   modalError.classList.add('modal--hidden');
 });
 
-var contactDataInner = document.querySelector('.contact-data__inner');
-var jcontactDataInnerInputs = contactDataInner.querySelectorAll('input');
-
-// Показывает модальное окно в зависимоти от условий
-btnFormBuy.addEventListener('click', function (evt) {
-  for (var i = 0; i < jcontactDataInnerInputs.length; i++) {
-    if (jcontactDataInnerInputs[i].checkValidity() === false) {
-      showModal(modalError);
-      return;
-    } else if (validСreditСard(inputCardNumber.value) === false || inputCardDate.checkValidity() === false
-    || inputCardCVC.checkValidity() === false || inputCardholder.checkValidity() === false) {
-      showModal(modalError);
-      return;
-    } else if (fieldsetCourier.checkValidity() === false) {
-      showModal(modalError);
-      return;
-    } else if (inputs[i].disabled === true) {
-      evt.preventDefault();
-    } else {
-      showModal(modalSuccess);
-      evt.preventDefault();
-    }
+// Проверка формы на валидность и вывод сообщений
+var checkFormValidity = function () {
+  var error = !checkContactDataError() || !checkCreditCardError() || !checkDeliveryError();
+  if (error) {
+    showModal(modalError);
+  } else {
+    showModal(modalSuccess);
   }
+};
+
+// Обрабочник проверки формы на валидность
+btnFormBuy.addEventListener('click', function () {
+  checkFormValidity();
 });
 
+var contactDataInner = document.querySelector('.contact-data__inner');
+var contactDataName = contactDataInner.querySelector('#contact-data__name');
+var contactDataTel = contactDataInner.querySelector('#contact-data__tel');
+var contactDataEmail = contactDataInner.querySelector('#contact-data__email');
+
+// Проверка Контактных данных
+var checkContactDataError = function () {
+  if (!contactDataName.checkValidity() || !contactDataTel.checkValidity() || !contactDataEmail.checkValidity()) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
+// Проверка данных по доставке
+var deliverStreet = fieldsetCourier.querySelector('#deliver__street');
+var deliverHouse = fieldsetCourier.querySelector('#deliver__house');
+var deliverRoom = fieldsetCourier.querySelector('#deliver__room');
+
+var checkDeliveryError = function () {
+  if (!deliverStreet.checkValidity() || !deliverHouse.checkValidity() || !deliverRoom.checkValidity()) {
+    return false;
+  } else {
+    return true;
+  }
+};
+// Проверка кредитной карты
 var paymentInputsBlock = document.querySelector('.payment__inputs');
 var inputCardNumber = paymentInputsBlock.querySelector('#payment__card-number');
 var inputCardDate = paymentInputsBlock.querySelector('#payment__card-date');
@@ -505,14 +523,20 @@ var inputCardCVC = paymentInputsBlock.querySelector('#payment__card-cvc');
 var inputCardholder = paymentInputsBlock.querySelector('#payment__cardholder');
 var paymentCardStatus = paymentInputsBlock.querySelector('.payment__card-status');
 
-// Смена статуса карты
-paymentInputsBlock.addEventListener('change', function () {
-  if (validСreditСard(inputCardNumber.value) === false || inputCardDate.checkValidity() === false
-  || inputCardCVC.checkValidity() === false || inputCardholder.checkValidity() === false) {
+var checkCreditCardError = function () {
+  if (!validСreditСard(inputCardNumber.value) || !inputCardDate.checkValidity()
+  || !inputCardCVC.checkValidity() || !inputCardholder.checkValidity()) {
     paymentCardStatus.textContent = 'НЕ ОПРЕДЕЛЁН';
+    return false;
   } else {
     paymentCardStatus.textContent = 'Одобрен';
+    return true;
   }
+};
+
+// Смена статуса карты
+paymentInputsBlock.addEventListener('change', function () {
+  checkCreditCardError();
 });
 
 // Алгоритм Луна
