@@ -476,18 +476,13 @@ btnModalError.addEventListener('click', function () {
 
 // Проверка формы на валидность и вывод сообщений
 var checkFormValidity = function () {
-  var error = !checkContactDataError() || !checkCreditCardError() || !checkDeliveryError();
+  var error = checkContactDataError() || checkDeliveryError() || checkCreditCardError();
   if (error) {
     showModal(modalError);
   } else {
     showModal(modalSuccess);
   }
 };
-
-// Обрабочник проверки формы на валидность
-btnFormBuy.addEventListener('click', function () {
-  checkFormValidity();
-});
 
 var contactDataInner = document.querySelector('.contact-data__inner');
 var contactDataName = contactDataInner.querySelector('#contact-data__name');
@@ -496,11 +491,7 @@ var contactDataEmail = contactDataInner.querySelector('#contact-data__email');
 
 // Проверка Контактных данных
 var checkContactDataError = function () {
-  if (!contactDataName.checkValidity() || !contactDataTel.checkValidity() || !contactDataEmail.checkValidity()) {
-    return false;
-  } else {
-    return true;
-  }
+  return !(contactDataName.checkValidity() && contactDataTel.checkValidity() && contactDataEmail.checkValidity());
 };
 
 // Проверка данных по доставке
@@ -509,11 +500,7 @@ var deliverHouse = fieldsetCourier.querySelector('#deliver__house');
 var deliverRoom = fieldsetCourier.querySelector('#deliver__room');
 
 var checkDeliveryError = function () {
-  if (!deliverStreet.checkValidity() || !deliverHouse.checkValidity() || !deliverRoom.checkValidity()) {
-    return false;
-  } else {
-    return true;
-  }
+  return !(deliverStreet.checkValidity() && deliverHouse.checkValidity() && deliverRoom.checkValidity());
 };
 // Проверка кредитной карты
 var paymentInputsBlock = document.querySelector('.payment__inputs');
@@ -524,23 +511,22 @@ var inputCardholder = paymentInputsBlock.querySelector('#payment__cardholder');
 var paymentCardStatus = paymentInputsBlock.querySelector('.payment__card-status');
 
 var checkCreditCardError = function () {
-  if (!validСreditСard(inputCardNumber.value) || !inputCardDate.checkValidity()
-  || !inputCardCVC.checkValidity() || !inputCardholder.checkValidity()) {
-    paymentCardStatus.textContent = 'НЕ ОПРЕДЕЛЁН';
-    return false;
-  } else {
-    paymentCardStatus.textContent = 'Одобрен';
-    return true;
-  }
+  return !(checkValidСreditСard(inputCardNumber.value) && inputCardDate.checkValidity()
+  && inputCardCVC.checkValidity() && inputCardholder.checkValidity());
 };
 
 // Смена статуса карты
 paymentInputsBlock.addEventListener('change', function () {
-  checkCreditCardError();
+  if (!checkValidСreditСard(inputCardNumber.value) || !inputCardDate.checkValidity()
+  || !inputCardCVC.checkValidity() || !inputCardholder.checkValidity()) {
+    paymentCardStatus.textContent = 'НЕ ОПРЕДЕЛЁН';
+  } else {
+    paymentCardStatus.textContent = 'Одобрен';
+  }
 });
 
 // Алгоритм Луна
-var validСreditСard = function (value) {
+var checkValidСreditСard = function (value) {
   if (/[^0-9-\s]+/.test(value)) {
     return false;
   }
@@ -562,3 +548,15 @@ var validСreditСard = function (value) {
   }
   return (nCheck % 10) === 0;
 };
+
+// Обрабочник проверки формы на валидность
+btnFormBuy.addEventListener('click', function (evt) {
+  if (!checkValidСreditСard(inputCardNumber.value)) {
+    inputCardNumber.setCustomValidity('Проверьте правильность введённых данных');
+    showModal(modalError);
+  } else {
+    inputCardNumber.setCustomValidity('');
+    checkFormValidity();
+    evt.preventDefault();
+  }
+});
