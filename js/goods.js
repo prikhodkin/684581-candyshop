@@ -398,8 +398,8 @@ btnCard.addEventListener('click', function () {
 });
 
 var addClassForPayment = function () {
-  paymentCash.classList.toggle('visually-hidden', btnCard.checked === true);
-  paymentCard.classList.toggle('visually-hidden', btnCash.checked === true);
+  paymentCash.classList.toggle('visually-hidden', btnCard.checked);
+  paymentCard.classList.toggle('visually-hidden', btnCash.checked);
   addDisabledForInputPayment();
 };
 
@@ -409,7 +409,7 @@ var inputsPayment = paymentInputs.querySelectorAll('input');
 // Добавляет и убирает атрибут disabled на инпуты
 var addDisabledForInputPayment = function () {
   for (var i = 0; i < inputsPayment.length; i++) {
-    inputsPayment[i].disabled = btnCash.checked === true;
+    inputsPayment[i].disabled = btnCash.checked;
   }
 };
 
@@ -433,15 +433,15 @@ btnCourier.addEventListener('click', function () {
 });
 
 var addClassForDelivery = function () {
-  courier.classList.toggle('visually-hidden', btnStore.checked === true);
-  store.classList.toggle('visually-hidden', btnCourier.checked === true);
+  courier.classList.toggle('visually-hidden', btnStore.checked);
+  store.classList.toggle('visually-hidden', btnCourier.checked);
   addDisabledForFieldsetDelivery();
 };
 
 // Добавляет и убирает атрибут disabled на инпуты в блоке доставки
 var addDisabledForFieldsetDelivery = function () {
-  fieldsetCourier.disabled = btnCourier.checked === false;
-  fieldsetStore.disabled = btnCourier.checked === true;
+  fieldsetCourier.disabled = !btnCourier.checked;
+  fieldsetStore.disabled = btnCourier.checked;
 };
 
 addDisabledForFieldsetDelivery();
