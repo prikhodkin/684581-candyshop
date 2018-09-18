@@ -560,3 +560,48 @@ btnFormBuy.addEventListener('click', function (evt) {
     evt.preventDefault();
   }
 });
+
+// Ползунок
+
+var range = document.querySelector('.range');
+var rangeFilter = range.querySelector('.range__filter');
+var rangeFillLine = rangeFilter.querySelector('.range__fill-line');
+
+
+rangeFilter.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+  var btn = evt.target.closest('.range__btn');
+
+  var startCoords = {
+    x: btn.clientX
+  };
+
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+    };
+    btn.style.left = (btn.offsetLeft - shift.x) + 'px';
+    rangeFillLine.style.width = (rangeFillLine.offsetWidth - shift.x) + 'px';
+
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    rangeFilter.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+
+  rangeFilter.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+
