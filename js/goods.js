@@ -569,23 +569,26 @@ var rangeFillLine = rangeFilter.querySelector('.range__fill-line');
 var btnRight = rangeFilter.querySelector('.range__btn--right');
 var btnLeft = rangeFilter.querySelector('.range__btn--left');
 
+
 var makeDraggable = function (element) {
+
   element.addEventListener('mousedown', function (evt) {
     evt.preventDefault();
 
-    var startCoords = {
-      x: element.clientX
+    var startPointerCoords = {
+      x: evt.clientX
+    };
+
+    var startElementCoords = {
+      x: element.offsetLeft
     };
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
       var shift = {
-        x: startCoords.x - moveEvt.clientX,
+        x: startPointerCoords.x - moveEvt.clientX
       };
-      startCoords = {
-        x: moveEvt.clientX,
-      };
-      element.style.left = (element.offsetLeft - shift.x) + 'px';
+      element.style.left = (startElementCoords.x - shift.x) + 'px';
     };
 
     var onMouseUp = function (upEvt) {
@@ -600,3 +603,32 @@ var makeDraggable = function (element) {
 
 makeDraggable(btnRight);
 makeDraggable(btnLeft);
+
+// MAX_FILTER_PRICE = 1500;
+
+var getSliderValue = function (button) {
+  var getButtonCoords = button.getBoundingClientRect();
+  var getRangeFillLineCoords = rangeFilter.getBoundingClientRect();
+  var buttonCoord = getButtonCoords.left;
+  var rangeFillLineLeftCoord = getRangeFillLineCoords.left;
+  var rangeFillLineRightCoord = getRangeFillLineCoords.right - button.offsetWidth;
+  var startCoord = 0;
+  var finishCoord = 1;
+  var widthFillLine = rangeFillLineRightCoord - rangeFillLineLeftCoord;
+  var differenceCoords = (rangeFillLineRightCoord - buttonCoord) / widthFillLine;
+  if (buttonCoord === rangeFillLineRightCoord) {
+    return finishCoord;
+  } else if (buttonCoord === rangeFillLineLeftCoord) {
+    return startCoord;
+  } else {
+    return finishCoord - differenceCoords;
+  }
+};
+
+
+getSliderValue(btnRight);
+console.log(getSliderValue(btnRight));
+
+getSliderValue(btnLeft);
+console.log(getSliderValue(btnLeft));
+
