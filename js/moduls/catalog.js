@@ -20,33 +20,63 @@
   };
 
   // Отрисовывает карточки
-  var createCards = function (cardData) {
-    var fragment = document.createDocumentFragment();
-    cardData.forEach(function (item) {
-      var cardElement = document.querySelector('#card').content.cloneNode(true);
-      var cardPrice = cardElement.querySelector('.card__price');
-      var cardCurrency = cardElement.querySelector('.card__currency');
-      var cardWeight = cardElement.querySelector('.card__weight');
-      cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
-      cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(item.amount));
-      cardElement.querySelector('.card__img').src = item.picture;
-      cardElement.querySelector('.card__title').textContent = item.name;
-      cardPrice.textContent = item.price;
-      cardPrice.appendChild(cardCurrency);
-      cardPrice.appendChild(cardWeight);
-      cardElement.querySelector('.card__weight').textContent = '/ ' + item.weight + ' Г';
-      cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
-      cardElement.querySelector('.stars__rating').classList.add(window.data.valueByStars[item.rating.value]);
-      cardElement.querySelector('.star__count').textContent = item.rating.number;
-      cardElement.querySelector('.card__characteristic').textContent = item.nutritionFacts.sugar;
-      cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + item.nutritionFacts.contents;
-      fragment.appendChild(cardElement);
-    });
-    return fragment;
+  // var createCards = function (cardData) {
+  //   var fragment = document.createDocumentFragment();
+  //   cardData.forEach(function (item) {
+  //     var cardElement = document.querySelector('#card').content.cloneNode(true);
+  //     var cardPrice = cardElement.querySelector('.card__price');
+  //     var cardCurrency = cardElement.querySelector('.card__currency');
+  //     var cardWeight = cardElement.querySelector('.card__weight');
+  //     cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
+  //     cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(item.amount));
+  //     cardElement.querySelector('.card__img').src = item.picture;
+  //     cardElement.querySelector('.card__title').textContent = item.name;
+  //     cardPrice.textContent = item.price;
+  //     cardPrice.appendChild(cardCurrency);
+  //     cardPrice.appendChild(cardWeight);
+  //     cardElement.querySelector('.card__weight').textContent = '/ ' + item.weight + ' Г';
+  //     cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
+  //     cardElement.querySelector('.stars__rating').classList.add(window.data.valueByStars[item.rating.value]);
+  //     cardElement.querySelector('.star__count').textContent = item.rating.number;
+  //     cardElement.querySelector('.card__characteristic').textContent = item.nutritionFacts.sugar;
+  //     cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + item.nutritionFacts.contents;
+  //     fragment.appendChild(cardElement);
+  //   });
+  //   return fragment;
+  // };
+
+  // catalogCards.appendChild(createCards(window.data.fillArray()));
+
+  var createCards = function (card) {
+    var cardElement = document.querySelector('#card').content.cloneNode(true);
+    var cardPrice = cardElement.querySelector('.card__price');
+    var cardCurrency = cardElement.querySelector('.card__currency');
+    var cardWeight = cardElement.querySelector('.card__weight');
+    cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
+    cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(card.amount));
+    cardElement.querySelector('.card__img').src = card.picture;
+    cardElement.querySelector('.card__title').textContent = card.name;
+    cardPrice.textContent = card.price;
+    cardPrice.appendChild(cardCurrency);
+    cardPrice.appendChild(cardWeight);
+    cardElement.querySelector('.card__weight').textContent = '/ ' + card.weight + ' Г';
+    cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
+    cardElement.querySelector('.stars__rating').classList.add(window.data.valueByStars[card.rating.value]);
+    cardElement.querySelector('.star__count').textContent = card.rating.number;
+    cardElement.querySelector('.card__characteristic').textContent = card.nutritionFacts.sugar;
+    cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + card.nutritionFacts.contents;
+    return cardElement;
   };
 
-  catalogCards.appendChild(createCards(window.data.fillArray()));
+  window.backend.load(function (cards) {
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < cards.length; i++) {
+      fragment.appendChild(createCards(cards[i]));
+    }
+    catalogCards.appendChild(fragment);
+  });
 
+  // catalogCards.appendChild(createCards(window.data.fillArray()));
   // Отрисовываем товары в корзине
 
   var goodsCards = document.querySelector('.goods__cards');
