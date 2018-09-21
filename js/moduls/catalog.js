@@ -2,16 +2,16 @@
 
 (function () {
   var catalogCards = document.querySelector('.catalog__cards');
-  catalogCards.classList.remove('catalog__cards--load');
+
   var catalogLoad = catalogCards.querySelector('.catalog__load');
-  catalogLoad.classList.add('visually-hidden');
+
 
   // Определяем классы в завсисимости от значения
   var addClassByAmount = function (amount) {
     var cardClass;
     if (amount > 5) {
       cardClass = 'card--in-stock';
-    } else if (amount > 1 && amount <= 5) {
+    } else if (amount >= 1 && amount <= 5) {
       cardClass = 'card--little';
     } else if (amount === 0) {
       cardClass = 'card--soon';
@@ -19,34 +19,17 @@
     return cardClass;
   };
 
+  // Функция для вывода содержания сахара
+  var getSugarValue = function (sugar) {
+    if (sugar) {
+      sugar = 'Без сахара';
+      return sugar;
+    } else {
+      sugar = 'Содержит сахар';
+      return sugar;
+    }
+  };
   // Отрисовывает карточки
-  // var createCards = function (cardData) {
-  //   var fragment = document.createDocumentFragment();
-  //   cardData.forEach(function (item) {
-  //     var cardElement = document.querySelector('#card').content.cloneNode(true);
-  //     var cardPrice = cardElement.querySelector('.card__price');
-  //     var cardCurrency = cardElement.querySelector('.card__currency');
-  //     var cardWeight = cardElement.querySelector('.card__weight');
-  //     cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
-  //     cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(item.amount));
-  //     cardElement.querySelector('.card__img').src = item.picture;
-  //     cardElement.querySelector('.card__title').textContent = item.name;
-  //     cardPrice.textContent = item.price;
-  //     cardPrice.appendChild(cardCurrency);
-  //     cardPrice.appendChild(cardWeight);
-  //     cardElement.querySelector('.card__weight').textContent = '/ ' + item.weight + ' Г';
-  //     cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
-  //     cardElement.querySelector('.stars__rating').classList.add(window.data.valueByStars[item.rating.value]);
-  //     cardElement.querySelector('.star__count').textContent = item.rating.number;
-  //     cardElement.querySelector('.card__characteristic').textContent = item.nutritionFacts.sugar;
-  //     cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + item.nutritionFacts.contents;
-  //     fragment.appendChild(cardElement);
-  //   });
-  //   return fragment;
-  // };
-
-  // catalogCards.appendChild(createCards(window.data.fillArray()));
-
   var createCards = function (card) {
     var cardElement = document.querySelector('#card').content.cloneNode(true);
     var cardPrice = cardElement.querySelector('.card__price');
@@ -63,20 +46,27 @@
     cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
     cardElement.querySelector('.stars__rating').classList.add(window.data.valueByStars[card.rating.value]);
     cardElement.querySelector('.star__count').textContent = card.rating.number;
-    cardElement.querySelector('.card__characteristic').textContent = card.nutritionFacts.sugar;
+    cardElement.querySelector('.card__characteristic').textContent = getSugarValue(card.nutritionFacts.sugar);
     cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + card.nutritionFacts.contents;
     return cardElement;
   };
 
-  window.backend.load(function (cards) {
+  var successHandler = (function (cards) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < cards.length; i++) {
       fragment.appendChild(createCards(cards[i]));
     }
     catalogCards.appendChild(fragment);
+    catalogCards.classList.remove('catalog__cards--load');
+    catalogLoad.classList.add('visually-hidden');
   });
 
-  // catalogCards.appendChild(createCards(window.data.fillArray()));
+  var errorHandler = function (errorMessage) {
+    catalogLoad.textContent = errorMessage;
+  };
+
+  window.backend.load(successHandler, errorHandler);
+
   // Отрисовываем товары в корзине
 
   var goodsCards = document.querySelector('.goods__cards');
