@@ -144,11 +144,11 @@
     goodsCards.addEventListener('click', function (evt) {
       evt.preventDefault();
       var target = evt.target.closest('.card-order__btn--increase');
-      var card = evt.target.closest('.card-order__amount');
-      var value = card.querySelector('.card-order__count');
       if (!target) {
         return;
       }
+      var card = evt.target.closest('.card-order__amount');
+      var value = card.querySelector('.card-order__count');
       increaseValue(value);
     });
 
@@ -156,18 +156,20 @@
     goodsCards.addEventListener('click', function (evt) {
       evt.preventDefault();
       var target = evt.target.closest('.card-order__btn--decrease');
-      var card = evt.target.closest('.card-order__amount');
-      var value = card.querySelector('.card-order__count');
       if (!target) {
         return;
-      } else if (value.value > 1) {
-        value.value--;
-      } else {
-        var targetCard = evt.target.closest('.card-order');
-        goodsCards.removeChild(targetCard);
-        alertMessage();
-        window.order.addDisabledForInput();
       }
+      var card = evt.target.closest('.card-order__amount');
+      var value = card.querySelector('.card-order__count');
+      if (value.value > 1) {
+        value.value--;
+      }
+
+      var targetCard = evt.target.closest('.card-order');
+      goodsCards.removeChild(targetCard);
+      alertMessage();
+      window.order.addDisabledForInput();
+
     });
 
     // Увеличивает значение

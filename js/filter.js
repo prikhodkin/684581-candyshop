@@ -75,19 +75,20 @@
   rangePriceMin.innerText = 0;
 
   var updateMaxPrice = function () {
-    var value = getSliderValue(btnRight);
-    var price = value * MAX_FILTER_PRICE;
-    price = Math.round(price);
-    rangePriceMax.innerText = price;
+    rangePriceMax.innerText = calculatePrice(btnRight);
     changeRangeFillLine();
   };
 
   var updateMinPrice = function () {
-    var value = getSliderValue(btnLeft);
+    rangePriceMin.innerText = calculatePrice(btnLeft);
+    changeRangeFillLine();
+  };
+
+  var calculatePrice = function (sliderValue) {
+    var value = getSliderValue(sliderValue);
     var price = value * MAX_FILTER_PRICE;
     price = Math.round(price);
-    rangePriceMin.innerText = price;
-    changeRangeFillLine();
+    return price;
   };
 
   var changeRangeFillLine = function () {
