@@ -110,34 +110,6 @@
     modalError.classList.add('modal--hidden');
   });
 
-  // Проверка формы на валидность и вывод сообщений
-  var checkFormValidity = function () {
-    var error = checkContactDataError() || checkDeliveryError() || checkCreditCardError();
-    if (error) {
-      showModal(modalError);
-    } else {
-      showModal(modalSuccess);
-    }
-  };
-
-  var contactDataInner = document.querySelector('.contact-data__inner');
-  var contactDataName = contactDataInner.querySelector('#contact-data__name');
-  var contactDataTel = contactDataInner.querySelector('#contact-data__tel');
-  var contactDataEmail = contactDataInner.querySelector('#contact-data__email');
-
-  // Проверка Контактных данных
-  var checkContactDataError = function () {
-    return !(contactDataName.checkValidity() && contactDataTel.checkValidity() && contactDataEmail.checkValidity());
-  };
-
-  // Проверка данных по доставке
-  var deliverStreet = fieldsetCourier.querySelector('#deliver__street');
-  var deliverHouse = fieldsetCourier.querySelector('#deliver__house');
-  var deliverRoom = fieldsetCourier.querySelector('#deliver__room');
-
-  var checkDeliveryError = function () {
-    return !(deliverStreet.checkValidity() && deliverHouse.checkValidity() && deliverRoom.checkValidity());
-  };
   // Проверка кредитной карты
   var paymentInputsBlock = document.querySelector('.payment__inputs');
   var inputCardNumber = paymentInputsBlock.querySelector('#payment__card-number');
@@ -145,11 +117,6 @@
   var inputCardCVC = paymentInputsBlock.querySelector('#payment__card-cvc');
   var inputCardholder = paymentInputsBlock.querySelector('#payment__cardholder');
   var paymentCardStatus = paymentInputsBlock.querySelector('.payment__card-status');
-
-  var checkCreditCardError = function () {
-    return !(checkValidСreditСard(inputCardNumber.value) && inputCardDate.checkValidity()
-    && inputCardCVC.checkValidity() && inputCardholder.checkValidity());
-  };
 
   // Смена статуса карты
   paymentInputsBlock.addEventListener('change', function () {
@@ -185,16 +152,27 @@
     return (nCheck % 10) === 0;
   };
 
-  // Обрабочник проверки формы на валидность
-  btnFormBuy.addEventListener('click', function (evt) {
+  // Обрабочник проверки номера карты на валидность
+  btnFormBuy.addEventListener('click', function () {
     if (!checkValidСreditСard(inputCardNumber.value)) {
       inputCardNumber.setCustomValidity('Проверьте правильность введённых данных');
-      showModal(modalError);
     } else {
       inputCardNumber.setCustomValidity('');
-      checkFormValidity();
-      evt.preventDefault();
     }
+  });
+
+  var errorHandler = function (errorMessage) {
+    modalError.classList.remove('modal--hidden');
+    var modalMessageError = modalError.querySelector('.modal__message');
+    modalMessageError.textContent = errorMessage;
+  };
+
+
+  formBuy.addEventListener('submit', function (evt) {
+    window.backend.upload(new FormData(formBuy), function () {
+      showModal(modalSuccess);
+    }, errorHandler);
+    evt.preventDefault();
   });
 
   window.order = {
