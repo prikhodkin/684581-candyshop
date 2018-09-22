@@ -38,7 +38,7 @@
     var cardWeight = cardElement.querySelector('.card__weight');
     cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
     cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(card.amount));
-    cardElement.querySelector('.card__img').src = card.picture;
+    cardElement.querySelector('.card__img').src = 'img/cards/' + card.picture;
     cardElement.querySelector('.card__title').textContent = card.name;
     cardPrice.textContent = card.price;
     cardPrice.appendChild(cardCurrency);
@@ -163,13 +163,12 @@
       var value = card.querySelector('.card-order__count');
       if (value.value > 1) {
         value.value--;
+      } else {
+        var targetCard = evt.target.closest('.card-order');
+        goodsCards.removeChild(targetCard);
+        alertMessage();
+        window.order.addDisabledForInput();
       }
-
-      var targetCard = evt.target.closest('.card-order');
-      goodsCards.removeChild(targetCard);
-      alertMessage();
-      window.order.addDisabledForInput();
-
     });
 
     // Увеличивает значение
@@ -192,7 +191,7 @@
         var cardsBasket = window.catalogCards[i];
         var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
         cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
-        cardBasketElement.querySelector('.card-order__img').src = cardsBasket.picture;
+        cardBasketElement.querySelector('.card-order__img').src = 'img/cards/' + cardsBasket.picture;
         cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + document.querySelector('.card__currency').textContent;
         cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
         goodsCards.appendChild(cardBasketElement);
