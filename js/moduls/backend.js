@@ -4,7 +4,6 @@
   var URL_GET = 'https://js.dump.academy/candyshop/data';
   var URL_POST = 'https://js.dump.academy/candyshop';
 
-
   var upload = function (data, onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
@@ -38,6 +37,7 @@
     xhr.addEventListener('load', function () {
       if (xhr.status === 200) {
         onLoad(xhr.response);
+        window.catalogCards = xhr.response;
       } else {
         onError('Ошибка: ' + xhr.status + ' ' + xhr.statusText);
       }
