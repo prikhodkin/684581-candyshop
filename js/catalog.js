@@ -102,24 +102,27 @@
     goodsCardEmpty.classList.toggle('visually-hidden', article !== null);
   };
 
-  // Удаляет товары из корзины
-  goodsCards.addEventListener('click', function (evt) {
-    evt.preventDefault();
-    var target = evt.target.closest('.card-order__close');
-    if (target === null) {
-      return;
-    }
-    var targetCard = evt.target.closest('.card-order');
-    goodsCards.removeChild(targetCard);
-    alertMessage();
-    window.order.addDisabledForInput();
-  });
 
   // Отрисовываем товары в корзине
 
   var runAddToBasketCard = function () {
     var addButtons = document.querySelectorAll('.card__btn');
     var cardsOnCatalog = catalogCards.querySelectorAll('.catalog__card');
+    var basketCards = [];
+
+    // Меняет сообщение корзины в шапке
+    var changeBasketMessage = function () {
+      var basketMessage = document.querySelector('.main-header__basket');
+      if (basketCards.length === 0) {
+        basketMessage.innerText = 'В корзине ничего нет';
+      } else if (basketCards.length === 1 || basketCards.length === 21) {
+        basketMessage.innerText = 'В корзине ' + basketCards.length + ' товар';
+      } else if ((basketCards.length > 1 && basketCards.length < 5) || (basketCards.length > 21 && basketCards.length < 25)) {
+        basketMessage.innerText = 'В корзине ' + basketCards.length + ' товара';
+      } else {
+        basketMessage.innerText = 'В корзине ' + basketCards.length + ' товаров';
+      }
+    };
 
     // Создает карточку товара в корзине
     var createAddToBasketHandler = function (i) {
@@ -130,6 +133,21 @@
         window.order.addDisabledForInput();
       };
     };
+
+    // Удаляет товары из корзины
+    goodsCards.addEventListener('click', function (evt) {
+      evt.preventDefault();
+      var target = evt.target.closest('.card-order__close');
+      if (target === null) {
+        return;
+      }
+      var targetCard = evt.target.closest('.card-order');
+      goodsCards.removeChild(targetCard);
+      alertMessage();
+      window.order.addDisabledForInput();
+      basketCards.splice(0, 1);
+      changeBasketMessage();
+    });
 
     // Добавляет товары в корзину при клике на кнопку добавить
     var addBasketAdditionHandlers = function () {
@@ -168,6 +186,8 @@
         goodsCards.removeChild(targetCard);
         alertMessage();
         window.order.addDisabledForInput();
+        basketCards.splice(0, 1);
+        changeBasketMessage();
       }
     });
 
@@ -195,6 +215,8 @@
         cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + document.querySelector('.card__currency').textContent;
         cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
         goodsCards.appendChild(cardBasketElement);
+        basketCards.push(goodsCards);
+        changeBasketMessage();
       } else {
         var value = dataAttribute.querySelector('.card-order__count');
         increaseValue(value);

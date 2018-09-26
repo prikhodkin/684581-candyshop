@@ -113,17 +113,6 @@
     5: 'stars__rating--five'
   };
 
-  // Функция для вывода содержания сахара
-  var getSugarValue = function () {
-    var sugar = '';
-    if (getRandomValue(0, 1) === 0) {
-      sugar = 'Без сахара';
-      return sugar;
-    } else {
-      sugar = 'Содержит сахар';
-      return sugar;
-    }
-  };
 
   // Функция для получения случайного значения из диапазона
   var getRandomValue = function (min, max) {
