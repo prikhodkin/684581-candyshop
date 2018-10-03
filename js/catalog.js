@@ -3,6 +3,7 @@
 (function () {
   var catalogCards = document.querySelector('.catalog__cards');
 
+
   var catalogLoad = catalogCards.querySelector('.catalog__load');
 
 
@@ -52,17 +53,27 @@
     return cardElement;
   };
 
-  var successHandler = (function (cards) {
+  var render = (function (cards) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < cards.length; i++) {
       fragment.appendChild(createCards(cards[i]));
     }
-
+    // удаляем старые карты, если они есть
+    var oldCards = catalogCards.querySelectorAll('article');
+    Array.from(oldCards).forEach(function (it) {
+      it.remove();
+    });
     catalogCards.appendChild(fragment);
     catalogCards.classList.remove('catalog__cards--load');
     catalogLoad.classList.add('visually-hidden');
     runAddToBasketCard();
   });
+
+  // экспортируем данные
+  var successHandler = function (response) {
+    window.catalog.data = response;
+    render(window.catalog.data);
+  };
 
   var errorHandler = function (errorMessage) {
     catalogLoad.textContent = errorMessage;
@@ -70,6 +81,8 @@
 
   window.backend.load(successHandler, errorHandler);
 
+  var favoriteData = [];
+  window.favoriteData = favoriteData;
   // Добавляет и убирает товары в избранное
   catalogCards.addEventListener('click', function (evt) {
     evt.preventDefault();
@@ -188,7 +201,7 @@
     var addToBasket = function (target, i) {
       var dataAttribute = goodsCards.querySelector('[data-id="' + target.dataset.id + '"]');
       if (dataAttribute === null) {
-        var cardsBasket = window.catalogCards[i];
+        var cardsBasket = window.cardsData[i];
         var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
         cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
         cardBasketElement.querySelector('.card-order__img').src = 'img/cards/' + cardsBasket.picture;
@@ -200,5 +213,13 @@
         increaseValue(value);
       }
     };
+
+    window.filter.getFilterNumber();
+
+  };
+  window.catalog = {
+    render: render,
+    data: [],
+    catalogCards: catalogCards
   };
 })();

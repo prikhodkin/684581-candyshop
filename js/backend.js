@@ -36,8 +36,8 @@
 
     xhr.addEventListener('load', function () {
       if (xhr.status === 200) {
-        onLoad(xhr.response);
-        window.catalogCards = xhr.response;
+        window.cardsData = xhr.response;
+        onLoad(window.cardsData);
       } else {
         onError('Ошибка: ' + xhr.status + ' ' + xhr.statusText);
       }
