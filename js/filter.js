@@ -15,6 +15,7 @@
     minValue: 0,
     maxValue: 100,
     amount: false,
+    popular: false
   };
 
   var defaultQuery = {
@@ -31,6 +32,7 @@
     minValue: 0,
     maxValue: 100,
     amount: false,
+    popular: false
   };
 
   var isSomePropertyTrue = function (obj) {
@@ -63,7 +65,46 @@
   var inputsKind = filterKind.querySelectorAll('input');
   var filterNtrition = document.querySelector('.catalog__filter--nutrition');
   var inputsNutrition = filterNtrition.querySelectorAll('input');
+  var inputFavorite = document.querySelector('#filter-favorite');
+  var inputAvailability = document.querySelector('#filter-availability');
+  var filteredData;
 
+  var sortExpensive = function (left, right) {
+    if (left > right) {
+      return -1;
+    } else if (left < right) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+
+  document.querySelector('#filter-expensive').addEventListener('change', function (e) {
+    var expensive = e.target.dataset.expensive;
+    if (!expensive) {
+      return;
+    } else if (e.target.checked) {
+      var expensiveCards = filteredData.filter(function (card) {
+        return card.price;
+      });
+      expensiveCards.sort(sortExpensive);
+    }
+  });
+
+
+  document.querySelector('#filter-favorite').addEventListener('change', function (e) {
+    var favorite = e.target.dataset.favorite;
+    if (!favorite) {
+      return;
+    } else if (e.target.checked) {
+      clearCheckedInput(inputsKind);
+      clearCheckedInput(inputsNutrition);
+      inputAvailability.checked = false;
+      window.runFavoriteFilter();
+    } else {
+      handle();
+    }
+  });
 
   document.querySelector('#filter-availability').addEventListener('change', function (e) {
     var availability = e.target.dataset.avalibility;
@@ -73,6 +114,7 @@
 
     clearCheckedInput(inputsKind);
     clearCheckedInput(inputsNutrition);
+    inputFavorite.checked = false;
     handle();
   });
 
@@ -139,9 +181,10 @@
   catalogCardsWrap.appendChild(emptyFilters);
   var catalogEmptyFilter = document.querySelector('.catalog__empty-filter');
   catalogEmptyFilter.classList.add('visually-hidden');
+  window.catalogEmptyFilter = catalogEmptyFilter;
 
   var handle = function () {
-    var filteredData = filter(window.catalog.data);
+    filteredData = filter(window.catalog.data);
     catalogEmptyFilter.classList.add('visually-hidden');
     console.log(filteredData);
     if (filteredData.length === 0) {
@@ -207,38 +250,38 @@
     numberFavorite.textContent = '(' + window.favoriteData.length + ')';
 
     var getFilterNumberKind = function (target, value) {
-      var filteredData = window.cardsData.filter(function (card) {
+      var filterData = window.cardsData.filter(function (card) {
         return card.kind === target;
       });
-      value.textContent = '(' + filteredData.length + ')';
+      value.textContent = '(' + filterData.length + ')';
     };
 
     var getFilterNumberSugar = function (target, value) {
-      var filteredData = window.cardsData.filter(function (card) {
+      var filterData = window.cardsData.filter(function (card) {
         return card.nutritionFacts.sugar === target;
       });
-      value.textContent = '(' + filteredData.length + ')';
+      value.textContent = '(' + filterData.length + ')';
     };
 
     var getFilterNumberVegetarian = function (target, value) {
-      var filteredData = window.cardsData.filter(function (card) {
+      var filterData = window.cardsData.filter(function (card) {
         return card.nutritionFacts.vegetarian === target;
       });
-      value.textContent = '(' + filteredData.length + ')';
+      value.textContent = '(' + filterData.length + ')';
     };
 
     var getFilterNumberGluten = function (target, value) {
-      var filteredData = window.cardsData.filter(function (card) {
+      var filterData = window.cardsData.filter(function (card) {
         return card.nutritionFacts.gluten === target;
       });
-      value.textContent = '(' + filteredData.length + ')';
+      value.textContent = '(' + filterData.length + ')';
     };
 
     var getFilterNumberAvailability = function (target, value) {
-      var filteredData = window.cardsData.filter(function (card) {
+      var filterData = window.cardsData.filter(function (card) {
         return card.amount > target;
       });
-      value.textContent = '(' + filteredData.length + ')';
+      value.textContent = '(' + filterData.length + ')';
     };
 
     getFilterNumberKind('Мороженое', numberIcecream);
@@ -251,8 +294,10 @@
     getFilterNumberGluten(false, numberGluten);
     getFilterNumberAvailability(0, numberAvailability);
   };
+
   window.filter = {
-    getFilterNumber: getFilterNumber
+    getFilterNumber: getFilterNumber,
+    filteredData: filteredData
   };
 
 

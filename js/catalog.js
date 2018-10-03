@@ -32,7 +32,7 @@
   };
 
   // Отрисовывает карточки
-  var createCards = function (card) {
+  var createCard = function (card) {
     var cardElement = document.querySelector('#card').content.cloneNode(true);
     var cardPrice = cardElement.querySelector('.card__price');
     var cardCurrency = cardElement.querySelector('.card__currency');
@@ -56,7 +56,7 @@
   var render = (function (cards) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < cards.length; i++) {
-      fragment.appendChild(createCards(cards[i]));
+      fragment.appendChild(createCard(cards[i]));
     }
     // удаляем старые карты, если они есть
     var oldCards = catalogCards.querySelectorAll('article');
@@ -83,14 +83,36 @@
 
   var favoriteData = [];
   window.favoriteData = favoriteData;
+  var favoriteCards = document.createElement('div');
+  favoriteCards.classList.add('catalog_favorite');
   // Добавляет и убирает товары в избранное
   catalogCards.addEventListener('click', function (evt) {
     evt.preventDefault();
     var target = evt.target.closest('.card__btn-favorite');
     if (!target) {
       return;
+    } else {
+      target.classList.toggle('card__btn-favorite--selected');
+      var card = evt.target.closest('article');
+      if (card.querySelector('.card__btn-favorite--selected')) {
+        var cardCopy = card.cloneNode(true);
+        favoriteCards.appendChild(cardCopy);
+        var runFavoriteFilter = function () {
+          var oldCards = catalogCards.querySelectorAll('article');
+          Array.from(oldCards).forEach(function (it) {
+            it.remove();
+          });
+          var createFavoriteList = function () {
+            var favoriteArticls = favoriteCards.querySelectorAll('article');
+            for (var i = 0; i < favoriteArticls.length; i++) {
+              catalogCards.appendChild(favoriteArticls[i]);
+            }
+          };
+          createFavoriteList();
+        };
+        window.runFavoriteFilter = runFavoriteFilter;
+      }
     }
-    target.classList.toggle('card__btn-favorite--selected');
   });
 
   // Показывает и скрывает состав
