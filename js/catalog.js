@@ -34,6 +34,7 @@
   // Отрисовывает карточки
   var createCard = function (card) {
     var cardElement = document.querySelector('#card').content.cloneNode(true);
+    cardElement.querySelector('.catalog__card').dataset.id = card.id;
     var cardPrice = cardElement.querySelector('.card__price');
     var cardCurrency = cardElement.querySelector('.card__currency');
     var cardWeight = cardElement.querySelector('.card__weight');
@@ -50,6 +51,9 @@
     cardElement.querySelector('.star__count').textContent = card.rating.number;
     cardElement.querySelector('.card__characteristic').textContent = getSugarValue(card.nutritionFacts.sugar) + '. ' + card.nutritionFacts.energy + ' ккал';
     cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + card.nutritionFacts.contents;
+    if (card.favorite) {
+      cardElement.querySelector('.card__btn-favorite').classList.add('card__btn-favorite--selected');
+    }
     return cardElement;
   };
 
@@ -71,6 +75,10 @@
 
   // экспортируем данные
   var successHandler = function (response) {
+    response.forEach(function (it, index) {
+      it.id = index;
+      it.favorite = false;
+    });
     window.catalog.data = response;
     render(window.catalog.data);
   };
@@ -81,38 +89,20 @@
 
   window.backend.load(successHandler, errorHandler);
 
-  var favoriteData = [];
-  window.favoriteData = favoriteData;
-  var favoriteCards = document.createElement('div');
-  favoriteCards.classList.add('catalog_favorite');
+
   // Добавляет и убирает товары в избранное
   catalogCards.addEventListener('click', function (evt) {
     evt.preventDefault();
     var target = evt.target.closest('.card__btn-favorite');
     if (!target) {
       return;
-    } else {
-      target.classList.toggle('card__btn-favorite--selected');
-      var card = evt.target.closest('article');
-      if (card.querySelector('.card__btn-favorite--selected')) {
-        var cardCopy = card.cloneNode(true);
-        favoriteCards.appendChild(cardCopy);
-        var runFavoriteFilter = function () {
-          var oldCards = catalogCards.querySelectorAll('article');
-          Array.from(oldCards).forEach(function (it) {
-            it.remove();
-          });
-          var createFavoriteList = function () {
-            var favoriteArticls = favoriteCards.querySelectorAll('article');
-            for (var i = 0; i < favoriteArticls.length; i++) {
-              catalogCards.appendChild(favoriteArticls[i]);
-            }
-          };
-          createFavoriteList();
-        };
-        window.runFavoriteFilter = runFavoriteFilter;
-      }
     }
+    var cardElement = evt.target.closest('.catalog__card');
+    var id = cardElement.dataset.id;
+    var card = window.catalog.data[id];
+    card.favorite = !card.favorite;
+
+    target.classList.toggle('card__btn-favorite--selected', card.favorite);
   });
 
   // Показывает и скрывает состав
@@ -211,14 +201,6 @@
       value.value++;
     };
 
-    // Добавляет дата атрибуты
-    var addDataAtribute = function () {
-      for (var i = 0; i < cardsOnCatalog.length; i++) {
-        cardsOnCatalog[i].setAttribute('data-id', i + 1);
-      }
-    };
-    addDataAtribute();
-
     // Добавляет карточки в корзину, если есть повтор, увеличивает значение
     var addToBasket = function (target, i) {
       var dataAttribute = goodsCards.querySelector('[data-id="' + target.dataset.id + '"]');
@@ -228,7 +210,7 @@
         cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
         cardBasketElement.querySelector('.card-order__img').src = 'img/cards/' + cardsBasket.picture;
         cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + document.querySelector('.card__currency').textContent;
-        cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i + 1);
+        cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i);
         goodsCards.appendChild(cardBasketElement);
       } else {
         var value = dataAttribute.querySelector('.card-order__count');

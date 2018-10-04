@@ -15,7 +15,8 @@
     minValue: 0,
     maxValue: 100,
     amount: false,
-    popular: false
+    popular: false,
+    favorite: false
   };
 
   var defaultQuery = {
@@ -32,7 +33,8 @@
     minValue: 0,
     maxValue: 100,
     amount: false,
-    popular: false
+    popular: false,
+    favorite: false
   };
 
   var isSomePropertyTrue = function (obj) {
@@ -50,12 +52,13 @@
       var maxPrice = card.price <= query.maxValue;
       var minPrice = card.price >= query.minValue;
       var availability = card.amount > 0;
+      var favorite = card.favorite || !query.favorite;
 
 
-      if (!kind || !sugar || !vegetarian || !gluten || !maxPrice || !minPrice || !availability) {
+      if (!kind || !sugar || !vegetarian || !gluten || !maxPrice || !minPrice || !availability || !favorite) {
         return false;
       } else {
-        return kind || sugar || vegetarian || gluten || maxPrice || minPrice || availability;
+        return kind || sugar || vegetarian || gluten || maxPrice || minPrice || availability || favorite;
       }
     });
   };
@@ -96,14 +99,10 @@
     var favorite = e.target.dataset.favorite;
     if (!favorite) {
       return;
-    } else if (e.target.checked) {
-      clearCheckedInput(inputsKind);
-      clearCheckedInput(inputsNutrition);
-      inputAvailability.checked = false;
-      window.runFavoriteFilter();
-    } else {
-      handle();
     }
+    query.favorite = e.target.checked;
+    handle();
+    inputAvailability.checked = false;
   });
 
   document.querySelector('#filter-availability').addEventListener('change', function (e) {
@@ -115,7 +114,6 @@
     clearCheckedInput(inputsKind);
     clearCheckedInput(inputsNutrition);
     inputFavorite.checked = false;
-    handle();
   });
 
   document.querySelector('#filter-sugar-free').addEventListener('change', function (e) {
@@ -247,7 +245,8 @@
     numberSlider.textContent = '(' + window.cardsData.length + ')';
     var numberAvailability = document.querySelector('.input-btn__item-count--availability');
     var numberFavorite = document.querySelector('.input-btn__item-count--favorite');
-    numberFavorite.textContent = '(' + window.favoriteData.length + ')';
+
+
 
     var getFilterNumberKind = function (target, value) {
       var filterData = window.cardsData.filter(function (card) {
@@ -284,6 +283,13 @@
       value.textContent = '(' + filterData.length + ')';
     };
 
+    var getFilterNumberFavorite = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.favorite === target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
     getFilterNumberKind('Мороженое', numberIcecream);
     getFilterNumberKind('Газировка', numberSoda);
     getFilterNumberKind('Жевательная резинка', numberGum);
@@ -293,6 +299,7 @@
     getFilterNumberVegetarian(true, numberVegetarian);
     getFilterNumberGluten(false, numberGluten);
     getFilterNumberAvailability(0, numberAvailability);
+    getFilterNumberFavorite(true, numberFavorite);
   };
 
   window.filter = {
