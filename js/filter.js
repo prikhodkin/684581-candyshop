@@ -16,7 +16,8 @@
     maxValue: 100,
     amount: false,
     popular: false,
-    favorite: false
+    favorite: false,
+    sortingOrder: false
   };
 
   var defaultQuery = {
@@ -34,7 +35,8 @@
     maxValue: 100,
     amount: false,
     popular: false,
-    favorite: false
+    favorite: false,
+    sortingOrder: false
   };
 
   var isSomePropertyTrue = function (obj) {
@@ -55,6 +57,7 @@
       var favorite = card.favorite || !query.favorite;
 
 
+
       if (!kind || !sugar || !vegetarian || !gluten || !maxPrice || !minPrice || !availability || !favorite) {
         return false;
       } else {
@@ -73,27 +76,74 @@
   var filteredData;
 
   var sortExpensive = function (left, right) {
-    if (left > right) {
-      return -1;
-    } else if (left < right) {
-      return 1;
-    } else {
-      return 0;
+    return right.price - left.price;
+  };
+
+  var sortCheep = function (left, right) {
+    return left.price - right.price;
+  };
+
+  var sortRating = function (left, right) {
+    return right.rating.value - left.rating.value;
+  };
+
+  var sortVoice = function (left, right) {
+    return right.rating.number - left.rating.number;
+  };
+
+  var sort = function (cards) {
+    switch (query.sortingOrder) {
+      case 'priceExpensive':
+        cards.sort(sortExpensive);
+        break;
+      case 'priceCheep':
+        cards.sort(sortCheep);
+        break;
+      case 'rating':
+        var rating = cards.sort(sortRating);
+        rating.sort(sortVoice);
+        break;
+      case 'popular':
+        cards = filteredData;
+        break;
     }
   };
+
+  document.querySelector('#filter-popular').addEventListener('change', function (e) {
+    var popular = e.target.dataset.popular;
+    if (!popular) {
+      return;
+    }
+    query.sortingOrder = 'popular';
+    handle();
+  });
+
+  document.querySelector('#filter-rating').addEventListener('change', function (e) {
+    var rating = e.target.dataset.rating;
+    if (!rating) {
+      return;
+    }
+    query.sortingOrder = 'rating';
+    handle();
+  });
 
   document.querySelector('#filter-expensive').addEventListener('change', function (e) {
     var expensive = e.target.dataset.expensive;
     if (!expensive) {
       return;
-    } else if (e.target.checked) {
-      var expensiveCards = filteredData.filter(function (card) {
-        return card.price;
-      });
-      expensiveCards.sort(sortExpensive);
     }
+    query.sortingOrder = 'priceExpensive';
+    handle();
   });
 
+  document.querySelector('#filter-cheep').addEventListener('change', function (e) {
+    var cheep = e.target.dataset.cheep;
+    if (!cheep) {
+      return;
+    }
+    query.sortingOrder = 'priceCheep';
+    handle();
+  });
 
   document.querySelector('#filter-favorite').addEventListener('change', function (e) {
     var favorite = e.target.dataset.favorite;
@@ -183,6 +233,7 @@
 
   var handle = function () {
     filteredData = filter(window.catalog.data);
+    sort(filteredData);
     catalogEmptyFilter.classList.add('visually-hidden');
     console.log(filteredData);
     if (filteredData.length === 0) {
@@ -225,11 +276,11 @@
     }
   };
   var catalogSubmit = document.querySelector('.catalog__submit');
-
+  var filterPopular = document.querySelector('#filter-popular');
   catalogSubmit.addEventListener('click', function (evt) {
     evt.preventDefault();
     clearCheckedInput(filterInput);
-
+    filterPopular.checked = true;
   });
 
   var getFilterNumber = function () {
@@ -245,8 +296,6 @@
     numberSlider.textContent = '(' + window.cardsData.length + ')';
     var numberAvailability = document.querySelector('.input-btn__item-count--availability');
     var numberFavorite = document.querySelector('.input-btn__item-count--favorite');
-
-
 
     var getFilterNumberKind = function (target, value) {
       var filterData = window.cardsData.filter(function (card) {
