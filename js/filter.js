@@ -56,8 +56,6 @@
       var availability = card.amount > 0;
       var favorite = card.favorite || !query.favorite;
 
-
-
       if (!kind || !sugar || !vegetarian || !gluten || !maxPrice || !minPrice || !availability || !favorite) {
         return false;
       } else {
@@ -235,7 +233,6 @@
     filteredData = filter(window.catalog.data);
     sort(filteredData);
     catalogEmptyFilter.classList.add('visually-hidden');
-    console.log(filteredData);
     if (filteredData.length === 0) {
       catalogEmptyFilter.classList.remove('visually-hidden');
       window.catalog.render(filteredData);
