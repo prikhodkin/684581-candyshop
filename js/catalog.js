@@ -22,7 +22,7 @@
 
   // Функция для вывода содержания сахара
   var getSugarValue = function (sugar) {
-    if (sugar) {
+    if (!sugar) {
       sugar = 'Без сахара';
       return sugar;
     } else {
@@ -148,7 +148,7 @@
     if (!target) {
       return;
     }
-    var card = evt.target.closest('.card-order__amount');
+    var card = evt.target.closest('.card-order__main');
     var value = card.querySelector('.card-order__count');
     value.value++;
   });

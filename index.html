@@ -106,24 +106,24 @@
             </li>
           </ul>
 
-          <ul class="catalog__filter">
+          <ul class="catalog__filter catalog__filter--sort">
             <li class="input-btn">
-              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="popular" type="radio" id="filter-popular" data-popular="Сначала популярные" checked data-popular="Сначала популярные">
+              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="popular" type="radio" id="filter-popular" data-popular="Сначала популярные" checked data-sort="Сначала популярные">
               <label class="input-btn__label input-btn__label--radio" for="filter-popular">Сначала популярные</label>
             </li>
 
             <li class="input-btn">
-              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="expensive" type="radio" id="filter-expensive" data-expensive="Сначала дорогие">
+              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="expensive" type="radio" id="filter-expensive" data-sort="Сначала дорогие">
               <label class="input-btn__label input-btn__label--radio" for="filter-expensive">Сначала дорогие</label>
             </li>
 
             <li class="input-btn">
-              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="cheep" type="radio" id="filter-cheep" data-cheep="Сначала дешевые">
+              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="cheep" type="radio" id="filter-cheep" data-sort="Сначала дешевые">
               <label class="input-btn__label input-btn__label--radio" for="filter-cheep">Сначала дешёвые</label>
             </li>
 
             <li class="input-btn">
-              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="rating" type="radio" id="filter-rating" data-rating="По рейтингу">
+              <input class="input-btn__input visually-hidden input-btn__input--radio" name="sort" value="rating" type="radio" id="filter-rating" data-sort="По рейтингу">
               <label class="input-btn__label input-btn__label--radio" for="filter-rating">По рейтингу</label>
             </li>
           </ul>
@@ -225,7 +225,7 @@
                     </p>
 
                     <p class="text-input text-input--light payment__input-wrap payment__input-wrap--cvc">
-                      <input type="text" class="text-input__input" name="card-cvc" id="payment__card-cvc" placeholder="CVC" pattern="^[ 0-9]+$" minlength="3" maxlength="3" required>
+                      <input type="text" class="text-input__input" name="card-cvc" id="payment__card-cvc" placeholder="CVC" pattern="^[ 0-9]+$" minlength="3" maxlength="3"  required>
                       <label class="text-input__label text-input__label--lock" for="payment__card-cvc">CVC</label>
                     </p>
 
@@ -483,11 +483,12 @@
     </div>
   </template>
   <script src="js/util.js"></script>
+  <script src="js/debounce.js"></script>
   <script src="js/backend.js"></script>
   <script src="js/data.js"></script>
   <script src="js/order.js"></script>
   <script src="js/catalog.js"></script>
-  <script src="js/filter.js"></script>
   <script src="js/slider.js"></script>
+  <script src="js/filter.js"></script>
 </body>
 </html>
