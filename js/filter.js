@@ -17,9 +17,9 @@
     amount: false,
     popular: false,
     favorite: false,
-    sortingOrder: false,
     availability: false
   };
+  var sortingOrder;
 
   var clone = function (object) {
     return JSON.parse(JSON.stringify(object));
@@ -70,14 +70,14 @@
   };
 
   var sortRating = function (left, right) {
-    return right.rating.value - left.rating.value;
+    var rating = right.rating.value - left.rating.value;
+    if (rating === 0) {
+      return right.rating.number - left.rating.number;
+    }
+    return rating;
   };
 
-  var sortVoice = function (left, right) {
-    return right.rating.number - left.rating.number;
-  };
-
-  var sortingOrders = {
+  var SortingOrders = {
     PRICE_CHEEP: 'Сначала дешевые',
     PRICE_EXPENSIVE: 'Сначала дорогие',
     RATING: 'По рейтингу',
@@ -85,18 +85,17 @@
   };
 
   var sort = function (cards) {
-    switch (query.sortingOrder) {
-      case sortingOrders.PRICE_EXPENSIVE:
+    switch (sortingOrder) {
+      case SortingOrders.PRICE_EXPENSIVE:
         cards.sort(sortExpensive);
         break;
-      case sortingOrders.PRICE_CHEEP:
+      case SortingOrders.PRICE_CHEEP:
         cards.sort(sortCheep);
         break;
-      case sortingOrders.RATING:
-        var rating = cards.sort(sortRating);
-        rating.sort(sortVoice);
+      case SortingOrders.RATING:
+        cards.sort(sortRating);
         break;
-      case sortingOrders.POPULAR:
+      case SortingOrders.POPULAR:
         cards = filteredData;
         break;
     }
@@ -107,7 +106,7 @@
     if (!target) {
       return;
     }
-    query.sortingOrder = target;
+    sortingOrder = target;
     handle();
   });
 
@@ -116,12 +115,12 @@
     if (!favorite) {
       return;
     }
-    query.favorite = e.target.checked;
-    handle();
     inputAvailability.checked = false;
     clearCheckedInput(inputsKind);
     clearCheckedInput(inputsNutrition);
     window.slider.clearSliderValue();
+    query.favorite = e.target.checked;
+    handle();
   });
 
   document.querySelector('#filter-availability').addEventListener('change', function (e) {

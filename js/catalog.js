@@ -31,6 +31,15 @@
     }
   };
 
+  // Объект для рейтинга
+  var valueByStars = {
+    1: 'stars__rating--one',
+    2: 'stars__rating--two',
+    3: 'stars__rating--three',
+    4: 'stars__rating--four',
+    5: 'stars__rating--five'
+  };
+
   // Отрисовывает карточки
   var createCard = function (card) {
     var cardElement = document.querySelector('#card').content.cloneNode(true);
@@ -47,7 +56,7 @@
     cardPrice.appendChild(cardWeight);
     cardElement.querySelector('.card__weight').textContent = '/ ' + card.weight + ' Г';
     cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
-    cardElement.querySelector('.stars__rating').classList.add(window.data.valueByStars[card.rating.value]);
+    cardElement.querySelector('.stars__rating').classList.add(valueByStars[card.rating.value]);
     cardElement.querySelector('.star__count').textContent = card.rating.number;
     cardElement.querySelector('.card__characteristic').textContent = getSugarValue(card.nutritionFacts.sugar) + '. ' + card.nutritionFacts.energy + ' ккал';
     cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + card.nutritionFacts.contents;
@@ -213,7 +222,7 @@
         var cardBasketElement = document.querySelector('#card-order').content.cloneNode(true);
         cardBasketElement.querySelector('.card-order__title').textContent = cardsBasket.name;
         cardBasketElement.querySelector('.card-order__img').src = 'img/cards/' + cardsBasket.picture;
-        cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price + document.querySelector('.card__currency').textContent;
+        cardBasketElement.querySelector('.card-order__price').textContent = cardsBasket.price;
         cardBasketElement.querySelector('.goods_card').setAttribute('data-id', i);
         goodsCards.appendChild(cardBasketElement);
       } else {
