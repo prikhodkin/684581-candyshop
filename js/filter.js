@@ -1,137 +1,298 @@
 'use strict';
 
 (function () {
-  // Ползунок
+  var defaultQuery = {
+    kind: {
+      'Мороженое': false,
+      'Газировка': false,
+      'Жевательная резинка': false,
+      'Мармелад': false,
+      'Зефир': false
+    },
+    noSugar: false,
+    vegetarian: false,
+    gluten: false,
+    minValue: 0,
+    maxValue: 100,
+    amount: false,
+    popular: false,
+    favorite: false,
+    availability: false
+  };
+  var sortingOrder;
 
-  var range = document.querySelector('.range');
-  var rangeFilter = range.querySelector('.range__filter');
-  var rangeFillLine = rangeFilter.querySelector('.range__fill-line');
-  var btnRight = rangeFilter.querySelector('.range__btn--right');
-  var btnLeft = rangeFilter.querySelector('.range__btn--left');
-  var MAX_FILTER_PRICE = 1500;
-  btnRight.style.right = 0;
-  btnLeft.style.left = 0;
-  rangeFillLine.style.left = 0;
-  rangeFillLine.style.right = 0;
+  var clone = function (object) {
+    return JSON.parse(JSON.stringify(object));
+  };
 
+  var query = clone(defaultQuery);
 
-  var makeDraggable = function (element, getBounds, moveCallback) {
-
-    element.addEventListener('mousedown', function (evt) {
-      evt.preventDefault();
-
-      var startPointerCoords = {
-        x: evt.clientX
-      };
-
-      var startElementCoords = {
-        x: element.offsetLeft
-      };
-
-      var onMouseMove = function (moveEvt) {
-        moveEvt.preventDefault();
-
-        var shift = {
-          x: startPointerCoords.x - moveEvt.clientX
-        };
-        element.style.left = (startElementCoords.x - shift.x) + 'px';
-        getBounds();
-        moveCallback();
-
-      };
-
-      var onMouseUp = function (upEvt) {
-        upEvt.preventDefault();
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-      };
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+  var isSomePropertyTrue = function (obj) {
+    return Object.keys(obj).some(function (key) {
+      return obj[key];
     });
   };
 
-  var getSliderValue = function (button) {
-    var getButtonCoords = button.getBoundingClientRect();
-    var getRangeFillLineCoords = rangeFilter.getBoundingClientRect();
-    var buttonCoord = getButtonCoords.left;
-    var rangeFillLineLeftCoord = getRangeFillLineCoords.left;
-    var rangeFillLineRightCoord = getRangeFillLineCoords.right - button.offsetWidth;
-    var startCoord = 0;
-    var finishCoord = 1;
-    var widthFillLine = rangeFillLineRightCoord - rangeFillLineLeftCoord;
-    var differenceCoords = (rangeFillLineRightCoord - buttonCoord) / widthFillLine;
-    if (buttonCoord === rangeFillLineRightCoord) {
-      return finishCoord;
-    } else if (buttonCoord === rangeFillLineLeftCoord) {
-      return startCoord;
+  var filter = function (cards) {
+    return cards.filter(function (card) {
+      var kind = !isSomePropertyTrue(query.kind) || query.kind[card.kind];
+      var sugar = !card.nutritionFacts.sugar || !query.noSugar;
+      var vegetarian = card.nutritionFacts.vegetarian || !query.vegetarian;
+      var gluten = !card.nutritionFacts.gluten || !query.gluten;
+      var maxPrice = card.price <= query.maxValue;
+      var minPrice = card.price >= query.minValue;
+      var availability = card.amount > 0 || !query.availability;
+      var favorite = card.favorite || !query.favorite;
+
+      if (!kind || !sugar || !vegetarian || !gluten || !maxPrice || !minPrice || !availability || !favorite) {
+        return false;
+      } else {
+        return kind || sugar || vegetarian || gluten || maxPrice || minPrice || availability || favorite;
+      }
+    });
+  };
+
+
+  var filterKind = document.querySelector('.catalog__filter--kind');
+  var inputsKind = filterKind.querySelectorAll('input');
+  var filterNtrition = document.querySelector('.catalog__filter--nutrition');
+  var inputsNutrition = filterNtrition.querySelectorAll('input');
+  var inputFavorite = document.querySelector('#filter-favorite');
+  var inputAvailability = document.querySelector('#filter-availability');
+  var filteredData;
+
+  var sortExpensive = function (left, right) {
+    return right.price - left.price;
+  };
+
+  var sortCheep = function (left, right) {
+    return left.price - right.price;
+  };
+
+  var sortRating = function (left, right) {
+    var rating = right.rating.value - left.rating.value;
+    if (rating === 0) {
+      return right.rating.number - left.rating.number;
+    }
+    return rating;
+  };
+
+  var SortingOrders = {
+    PRICE_CHEEP: 'Сначала дешевые',
+    PRICE_EXPENSIVE: 'Сначала дорогие',
+    RATING: 'По рейтингу',
+    POPULAR: 'Сначала популярные'
+  };
+
+  var sort = function (cards) {
+    switch (sortingOrder) {
+      case SortingOrders.PRICE_EXPENSIVE:
+        cards.sort(sortExpensive);
+        break;
+      case SortingOrders.PRICE_CHEEP:
+        cards.sort(sortCheep);
+        break;
+      case SortingOrders.RATING:
+        cards.sort(sortRating);
+        break;
+      case SortingOrders.POPULAR:
+        cards = filteredData;
+        break;
+    }
+  };
+
+  document.querySelector('.catalog__filter--sort').addEventListener('change', function (e) {
+    var target = e.target.dataset.sort;
+    if (!target) {
+      return;
+    }
+    sortingOrder = target;
+    handle();
+  });
+
+  document.querySelector('#filter-favorite').addEventListener('change', function (e) {
+    var favorite = e.target.dataset.favorite;
+    if (!favorite) {
+      return;
+    }
+    inputAvailability.checked = false;
+    clearCheckedInput(inputsKind);
+    clearCheckedInput(inputsNutrition);
+    window.slider.clearSliderValue();
+    query.favorite = e.target.checked;
+    handle();
+  });
+
+  document.querySelector('#filter-availability').addEventListener('change', function (e) {
+    var availability = e.target.dataset.avalibility;
+    if (!availability) {
+      return;
+    } else if (e.target.checked) {
+      clearCheckedInput(inputsKind);
+      clearCheckedInput(inputsNutrition);
+      inputFavorite.checked = false;
+      handle();
     } else {
-      return finishCoord - differenceCoords;
+      return;
+    }
+  });
+
+  document.querySelector('#filter-sugar-free').addEventListener('change', function (e) {
+    var nutrition = e.target.dataset.nutrition;
+    if (!nutrition) {
+      return;
+    }
+    query.noSugar = e.target.checked;
+    handle();
+  });
+
+  document.querySelector('#filter-vegetarian').addEventListener('change', function (e) {
+    var vegetarian = e.target.dataset.nutrition;
+    if (!vegetarian) {
+      return;
+    }
+    query.vegetarian = e.target.checked;
+    handle();
+  });
+
+  document.querySelector('#filter-gluten-free').addEventListener('change', function (e) {
+    var gluten = e.target.dataset.nutrition;
+    if (!gluten) {
+      return;
+    }
+    query.gluten = e.target.checked;
+    handle();
+  });
+
+  window.slider.onUpdateMaxPrice = function (price) {
+    query.maxValue = price;
+    handle();
+  };
+
+  window.slider.onUpdateMinPrice = function (price) {
+    query.minValue = price;
+    handle();
+  };
+
+  document.querySelector('.catalog__filter--kind').addEventListener('change', function (e) {
+    var kind = e.target.dataset.kind;
+    if (!kind) {
+      return;
+    }
+    query.kind[kind] = e.target.checked;
+    handle();
+  });
+
+  var emptyFilters = document.querySelector('#empty-filters').content.cloneNode(true);
+  var catalogCardsWrap = document.querySelector('.catalog__cards-wrap');
+  catalogCardsWrap.appendChild(emptyFilters);
+  var catalogEmptyFilter = document.querySelector('.catalog__empty-filter');
+  catalogEmptyFilter.classList.add('visually-hidden');
+  window.catalogEmptyFilter = catalogEmptyFilter;
+
+  var handle = window.debounce(function () {
+    filteredData = filter(window.catalog.data);
+    sort(filteredData);
+    catalogEmptyFilter.classList.add('visually-hidden');
+    if (filteredData.length === 0) {
+      catalogEmptyFilter.classList.remove('visually-hidden');
+      window.catalog.render(filteredData);
+    } else {
+      window.catalog.render(filteredData);
+    }
+  });
+
+  var filterList = document.querySelector('.catalog__sidebar');
+  var filterInput = filterList.querySelectorAll('input');
+
+  var clearCheckedInput = function (item) {
+    for (var i = 0; i < item.length; i++) {
+      item[i].checked = false;
+      query = clone(defaultQuery);
     }
   };
+  var catalogSubmit = document.querySelector('.catalog__submit');
+  var filterPopular = document.querySelector('#filter-popular');
+  catalogSubmit.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    clearCheckedInput(filterInput);
+    filterPopular.checked = true;
+    window.catalog.render(window.catalog.data);
+    window.slider.clearSliderValue();
+  });
 
-  var rangePriceMax = document.querySelector('.range__price--max');
-  rangePriceMax.innerText = MAX_FILTER_PRICE;
-  var rangePriceMin = document.querySelector('.range__price--min');
-  rangePriceMin.innerText = 0;
+  var getFilterNumber = function () {
+    var numberIcecream = document.querySelector('.input-btn__item-count--icecream');
+    var numberSoda = document.querySelector('.input-btn__item-count--soda');
+    var numberGum = document.querySelector('.input-btn__item-count--gum');
+    var numberMarmalade = document.querySelector('.input-btn__item-count--marmalade');
+    var numberMarshmellow = document.querySelector('.input-btn__item-count--marshmellow');
+    var numberSugar = document.querySelector('.input-btn__item-count--sugar');
+    var numberVegetarian = document.querySelector('.input-btn__item-count--vegetarian');
+    var numberGluten = document.querySelector('.input-btn__item-count--gluten');
+    var numberSlider = document.querySelector('.range__count');
+    numberSlider.textContent = '(' + window.cardsData.length + ')';
+    var numberAvailability = document.querySelector('.input-btn__item-count--availability');
+    var numberFavorite = document.querySelector('.input-btn__item-count--favorite');
 
-  var updateMaxPrice = function () {
-    rangePriceMax.innerText = calculatePrice(btnRight);
-    changeRangeFillLine();
+    var getFilterNumberKind = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.kind === target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
+    var getFilterNumberSugar = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.nutritionFacts.sugar === target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
+    var getFilterNumberVegetarian = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.nutritionFacts.vegetarian === target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
+    var getFilterNumberGluten = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.nutritionFacts.gluten === target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
+    var getFilterNumberAvailability = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.amount > target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
+    var getFilterNumberFavorite = function (target, value) {
+      var filterData = window.cardsData.filter(function (card) {
+        return card.favorite === target;
+      });
+      value.textContent = '(' + filterData.length + ')';
+    };
+
+    getFilterNumberKind('Мороженое', numberIcecream);
+    getFilterNumberKind('Газировка', numberSoda);
+    getFilterNumberKind('Жевательная резинка', numberGum);
+    getFilterNumberKind('Мармелад', numberMarmalade);
+    getFilterNumberKind('Зефир', numberMarshmellow);
+    getFilterNumberSugar(false, numberSugar);
+    getFilterNumberVegetarian(true, numberVegetarian);
+    getFilterNumberGluten(false, numberGluten);
+    getFilterNumberAvailability(0, numberAvailability);
+    getFilterNumberFavorite(true, numberFavorite);
   };
 
-  var updateMinPrice = function () {
-    rangePriceMin.innerText = calculatePrice(btnLeft);
-    changeRangeFillLine();
+  window.filter = {
+    getFilterNumber: getFilterNumber,
+    filteredData: filteredData
   };
 
-  var calculatePrice = function (sliderValue) {
-    var value = getSliderValue(sliderValue);
-    var price = value * MAX_FILTER_PRICE;
-    price = Math.round(price);
-    return price;
-  };
-
-  var changeRangeFillLine = function () {
-    var btnRightCoord = btnRight.getBoundingClientRect().left;
-    var btnLeftCoord = btnLeft.getBoundingClientRect().left;
-    var differenceCoords = btnRightCoord - btnLeftCoord;
-    var btnLeftStyleLeft = btnLeft.offsetLeft;
-    rangeFillLine.style.width = (differenceCoords) + 'px';
-    rangeFillLine.style.left = (btnLeftStyleLeft) + 'px';
-  };
-
-  var getSliderBoundMax = function () {
-    var getButtonRightCoord = btnRight.getBoundingClientRect();
-    var getButtonLeftCoord = btnLeft.getBoundingClientRect();
-    var getRangeFillLineCoords = rangeFilter.getBoundingClientRect();
-    var buttonRightCoord = getButtonRightCoord.left;
-    var buttonLeftCoord = getButtonLeftCoord.left;
-    var rangeFillLineLeftCoord = getRangeFillLineCoords.left;
-    var rangeFillLineRightCoord = getRangeFillLineCoords.right - btnRight.offsetWidth;
-    var differenceFillLineCoords = (rangeFillLineRightCoord - rangeFillLineLeftCoord);
-    if (buttonRightCoord > rangeFillLineRightCoord) {
-      btnRight.style.left = (differenceFillLineCoords) + 'px';
-    } else if (buttonRightCoord < buttonLeftCoord) {
-      btnRight.style.left = btnLeft.style.left;
-    }
-  };
-
-  var getSliderBoundMin = function () {
-    var getButtonRightCoord = btnRight.getBoundingClientRect();
-    var getButtonLeftCoord = btnLeft.getBoundingClientRect();
-    var getRangeFillLineCoords = rangeFilter.getBoundingClientRect();
-    var buttonRightCoord = getButtonRightCoord.left;
-    var buttonLeftCoord = getButtonLeftCoord.left;
-    var rangeFillLineLeftCoord = getRangeFillLineCoords.left;
-    if (buttonLeftCoord < rangeFillLineLeftCoord) {
-      btnLeft.style.left = 0;
-    } else if (buttonLeftCoord > buttonRightCoord) {
-      btnLeft.style.left = btnRight.style.left;
-    }
-  };
-
-  makeDraggable(btnRight, getSliderBoundMax, updateMaxPrice);
-
-  makeDraggable(btnLeft, getSliderBoundMin, updateMinPrice);
 
 })();
