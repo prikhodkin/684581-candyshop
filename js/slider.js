@@ -64,11 +64,11 @@
     var differenceCoords = (rangeFillLineRightCoord - buttonCoord) / widthFillLine;
     if (buttonCoord === rangeFillLineRightCoord) {
       return finishCoord;
-    } else if (buttonCoord === rangeFillLineLeftCoord) {
-      return startCoord;
-    } else {
-      return finishCoord - differenceCoords;
     }
+    if (buttonCoord === rangeFillLineLeftCoord) {
+      return startCoord;
+    }
+    return finishCoord - differenceCoords;
   };
 
   var rangePriceMax = document.querySelector('.range__price--max');

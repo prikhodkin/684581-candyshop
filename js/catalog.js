@@ -20,12 +20,9 @@
   // Функция для вывода содержания сахара
   var getSugarValue = function (sugar) {
     if (!sugar) {
-      sugar = 'Без сахара';
-      return sugar;
-    } else {
-      sugar = 'Содержит сахар';
-      return sugar;
+      return 'Без сахара';
     }
+    return 'Содержит сахар';
   };
 
   // Объект для рейтинга
@@ -44,16 +41,18 @@
     var cardPrice = cardElement.querySelector('.card__price');
     var cardCurrency = cardElement.querySelector('.card__currency');
     var cardWeight = cardElement.querySelector('.card__weight');
-    cardElement.querySelector('.catalog__card').classList.remove('card--in-stock');
-    cardElement.querySelector('.catalog__card').classList.add(addClassByAmount(card.amount));
+    var catalogCard = cardElement.querySelector('.catalog__card');
+    var cardRating = cardElement.querySelector('.stars__rating');
+    catalogCard.classList.remove('card--in-stock');
+    catalogCard.classList.add(addClassByAmount(card.amount));
     cardElement.querySelector('.card__img').src = 'img/cards/' + card.picture;
     cardElement.querySelector('.card__title').textContent = card.name;
     cardPrice.textContent = card.price;
     cardPrice.appendChild(cardCurrency);
     cardPrice.appendChild(cardWeight);
     cardElement.querySelector('.card__weight').textContent = '/ ' + card.weight + ' Г';
-    cardElement.querySelector('.stars__rating').classList.remove('stars__rating--five');
-    cardElement.querySelector('.stars__rating').classList.add(valueByStars[card.rating.value]);
+    cardRating.classList.remove('stars__rating--five');
+    cardRating.classList.add(valueByStars[card.rating.value]);
     cardElement.querySelector('.star__count').textContent = card.rating.number;
     cardElement.querySelector('.card__characteristic').textContent = getSugarValue(card.nutritionFacts.sugar) + '. ' + card.nutritionFacts.energy + ' ккал';
     cardElement.querySelector('.card__composition-list').textContent = 'Состав: ' + card.nutritionFacts.contents;
@@ -65,10 +64,9 @@
 
   var render = (function (cards) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < cards.length; i++) {
-      fragment.appendChild(createCard(cards[i]));
-    }
-    // удаляем старые карты, если они есть
+    cards.forEach(function (it) {
+      fragment.appendChild(createCard(it));
+    });
     var oldCards = catalogCards.querySelectorAll('article');
     Array.from(oldCards).forEach(function (it) {
       it.remove();
@@ -80,12 +78,12 @@
   });
 
   // экспортируем данные
-  var successHandler = function (response) {
-    response.forEach(function (it, index) {
+  var successHandler = function (responseData) {
+    responseData.forEach(function (it, index) {
       it.id = index;
       it.favorite = false;
     });
-    window.catalog.data = response;
+    window.catalog.data = responseData;
     render(window.catalog.data);
   };
 

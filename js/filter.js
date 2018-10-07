@@ -96,7 +96,6 @@
         cards.sort(sortRating);
         break;
       case SortingOrders.POPULAR:
-        cards = filteredData;
         break;
     }
   };
@@ -127,14 +126,13 @@
     var availability = e.target.dataset.avalibility;
     if (!availability) {
       return;
-    } else if (e.target.checked) {
-      clearCheckedInput(inputsKind);
-      clearCheckedInput(inputsNutrition);
-      inputFavorite.checked = false;
-      handle();
-    } else {
-      return;
     }
+    inputFavorite.checked = false;
+    clearCheckedInput(inputsKind);
+    clearCheckedInput(inputsNutrition);
+    window.slider.clearSliderValue();
+    query.availability = e.target.checked;
+    handle();
   });
 
   document.querySelector('#filter-sugar-free').addEventListener('change', function (e) {
